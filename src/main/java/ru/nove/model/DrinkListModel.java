@@ -1,12 +1,14 @@
 package ru.nove.model;
 
 import ru.nove.model.entities.Drink;
+import ru.nove.model.searchable.StringSearchable;
 import ru.nove.model.utils.DateUtil;
 import ru.nove.model.utils.SaveLoadUtil;
 import ru.nove.view.GUI;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class DrinkListModel {
     private ArrayList<Drink> drinks;
@@ -146,6 +148,10 @@ public class DrinkListModel {
 
     public void prepareGui() {
         gui.enableCancelButton(false);
+    }
+
+    public List<String> getRegistry() {
+        return archiveHandler.getArchive();
     }
 }
 

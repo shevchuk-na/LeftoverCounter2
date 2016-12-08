@@ -2,6 +2,8 @@ package ru.nove.view;
 
 import ru.nove.controller.GraphicController;
 import ru.nove.model.entities.Drink;
+import ru.nove.model.searchable.StringSearchable;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -130,13 +132,16 @@ public class GUI {
         } else {
             inputFrame = new JFrame("Введите данные");
             JPanel panel = new JPanel();
+            name = new AutocompleteJComboBox(new StringSearchable(controller.getRegistry()));
             name = new JTextField(19);
             name.addKeyListener(new KeyAdapter() {
                 @Override
                 public void keyTyped(KeyEvent e) {
-                    if((name.getText().isEmpty()));
+                    if(!name.getText().isEmpty() && !amount.getText().isEmpty() && !defaultAmount.getText().isEmpty()){
+                           addButton.setEnabled(true);
+                    }
                 }
-            })
+            });
             amount = new JTextField(5);
             JLabel defAmoLabel = new JLabel("Продажа по умолчанию:");
             defaultAmount = new JTextField(5);

@@ -3,9 +3,10 @@ package ru.nove.model;
 import ru.nove.model.entities.Drink;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ArchiveHandler {
-    private ArrayList<Drink> archive;
+    private List<Drink> archive;
 
     public ArchiveHandler(){
         this.archive = new ArrayList<>();
@@ -15,7 +16,7 @@ public class ArchiveHandler {
         archive.add(drink);
     }
 
-    public ArrayList<Drink> getArchive(){
+    public List<Drink> getArchive(){
         return archive;
     }
 

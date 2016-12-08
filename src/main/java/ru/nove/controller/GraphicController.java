@@ -3,6 +3,8 @@ package ru.nove.controller;
 import ru.nove.model.DrinkListModel;
 import ru.nove.view.GUI;
 
+import java.util.List;
+
 public class GraphicController {
     private GUI gui;
     private DrinkListModel model;
@@ -53,4 +55,7 @@ public class GraphicController {
     }
 
 
+    public List<String> getRegistry() {
+        return model.getRegistry();
+    }
 }
