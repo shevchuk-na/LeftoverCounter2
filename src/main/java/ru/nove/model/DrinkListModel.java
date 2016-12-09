@@ -36,10 +36,24 @@ public class DrinkListModel {
 
     public void addDrink(String name, int amount, int defaultAmount){
         Drink newDrink = new Drink(name, amount, defaultAmount);
-        drinks.add(newDrink);
-        salesThisSession.add(newDrink);
-        gui.enableCancelButton(true);
-        gui.addPosition(newDrink);
+        if(checkDuplicateDrink(newDrink) == 1) {
+            drinks.add(newDrink);
+            archiveHandler.addToArchive(newDrink);
+            salesThisSession.add(newDrink);
+            gui.enableCancelButton(true);
+            gui.addPosition(newDrink);
+        } else {
+            gui.showDuplicateWarning();
+        }
+    }
+
+    private int checkDuplicateDrink(Drink newDrink) {
+        for(Drink drink:drinks){
+            if(drink.getName().toLowerCase().equals(newDrink.getName().toLowerCase())){
+                return -1;
+            }
+        }
+        return 1;
     }
 
     public void sellDrink(String name, int amount){
@@ -53,7 +67,6 @@ public class DrinkListModel {
         gui.enableCancelButton(true);
         if(drink.getAmount() == 0){
             gui.removePosition(drink.getName());
-            archiveHandler.addToArchive(drink);
             drinks.remove(drink);
         } else {
             gui.updateAmount(drinks.get(index).getName(), drinks.get(index).getAmount());

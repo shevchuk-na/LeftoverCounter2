@@ -10,9 +10,6 @@ public class ArchiveHandler {
 
     public ArchiveHandler(){
         this.archive = new ArrayList<>();
-        archive.add(new Drink("Монтепульчано", 0, 125));
-        archive.add(new Drink("Просекко", 0, 150));
-        archive.add(new Drink("Водка", 0, 50));
     }
 
     public void addToArchive(Drink drink){

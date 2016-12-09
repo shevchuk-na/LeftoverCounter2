@@ -19,6 +19,7 @@ public class AutocompleteJComboBox extends JComboBox{
 
     public AutocompleteJComboBox(Searchable<Drink, String> s){
         super();
+        setPreferredSize(new Dimension(200,25));
         this.searchable = s;
         setEditable(true);
         Component c = getEditor().getEditorComponent();

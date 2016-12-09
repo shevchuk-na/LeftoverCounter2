@@ -131,33 +131,62 @@ public class GUI {
             name.setSelectedItem(null);
             amount.setText("");
             defaultAmount.setText("");
+            addButton.setEnabled(false);
         } else {
             inputFrame = new JFrame("Введите данные");
             JPanel panel = new JPanel();
-            amount = new JTextField(5);
+            amount = new JTextField(6);
+            amount.setMargin(new Insets(3,2,3,2));
             JLabel defAmoLabel = new JLabel("Продажа по умолчанию:");
             defaultAmount = new JTextField(5);
+            defaultAmount.setMargin(new Insets(3,2,3,2));
             name = new AutocompleteJComboBox(new DrinkSearchable(controller.getRegistry()));
-            name.addItemListener(e -> {
-                if(name.getSelectedItem() != null) {
-                    String drink = name.getSelectedItem().toString();
-                    int defAmount = controller.checkRegistry(drink);
-                    if (defAmount != 0) {
-                        defaultAmount.setText(String.valueOf(defAmount));
-                    }
+            name.addItemListener(e -> checkDefaultAmount());
+            name.addItemListener(e -> checkEntry());
+            amount.addKeyListener(new KeyAdapter() {
+                @Override
+                public void keyReleased(KeyEvent e) {
+                    checkEntry();
+                }
+            });
+            defaultAmount.addKeyListener(new KeyAdapter() {
+                @Override
+                public void keyReleased(KeyEvent e) {
+                    checkEntry();
                 }
             });
             addButton = new JButton("Добавить");
+            addButton.setEnabled(false);
             addButton.addActionListener( (e) -> addData());
             panel.add(name);
             panel.add(amount);
             panel.add(defAmoLabel);
             panel.add(defaultAmount);
             panel.add(addButton);
-            inputFrame.setSize(320, 120);
+            inputFrame.setSize(320, 145);
             inputFrame.getContentPane().add(panel);
             inputFrame.setLocationRelativeTo(mainFrame);
             inputFrame.setVisible(true);
+        }
+    }
+
+    private void checkEntry(){
+        if(name.getSelectedItem() != null) {
+            if (!name.getSelectedItem().toString().equals("") && !amount.getText().equals("") && !defaultAmount.getText().equals("")) {
+                addButton.setEnabled(true);
+                return;
+            }
+        }
+        addButton.setEnabled(false);
+    }
+
+    private void checkDefaultAmount() {
+        if(name.getSelectedItem() != null) {
+            String drink = name.getSelectedItem().toString();
+            int defAmount = controller.checkRegistry(drink);
+            if (defAmount != 0) {
+                defaultAmount.setText(String.valueOf(defAmount));
+            }
         }
     }
 
@@ -167,7 +196,15 @@ public class GUI {
 
     private void addData() {
         inputFrame.setVisible(false);
-        controller.addDrink(((String) name.getSelectedItem()), Integer.parseInt(amount.getText()), Integer.parseInt(defaultAmount.getText()));
+        try {
+            controller.addDrink(((String) name.getSelectedItem()), Integer.parseInt(amount.getText()), Integer.parseInt(defaultAmount.getText()));
+        }catch (NumberFormatException e){
+            showNumberFormatWarning();
+        }
+    }
+
+    private void showNumberFormatWarning() {
+        logArea.setText("DRINK NOT ADDED!\nOnly numbers permitted in amount fields");
     }
 
     public void updateAmount(String name, int amount) {
@@ -278,5 +315,9 @@ public class GUI {
 
     public void showNewSaveFileInfo() {
         logArea.setText("New save file created!");
+    }
+
+    public void showDuplicateWarning() {
+        logArea.setText("Drink already in the list!");
     }
 }

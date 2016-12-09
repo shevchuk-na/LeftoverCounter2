@@ -18,8 +18,9 @@ public class HistoryHandler {
     public ArrayList<String> formHistory(int mode) {
         ArrayList<String> history = new ArrayList<>();
         ArrayList<Drink> allDrinks = new ArrayList<>();
+//        allDrinks.addAll(model.getDrinks());
         allDrinks.addAll(archiveHandler.getArchive());
-        allDrinks.addAll(model.getDrinks());
+
         switch(mode){
             case 1:
                 allDrinks.sort(getCompByAddedDate());
