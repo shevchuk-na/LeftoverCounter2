@@ -42,7 +42,7 @@ public class AutocompleteJComboBox extends JComboBox{
                     SwingUtilities.invokeLater(new Runnable() {
                         @Override
                         public void run() {
-                            List<Drink> founds = new ArrayList<>(searchable.search(tc.getText()));
+                            List<Drink> founds = new ArrayList<>(searchable.search(tc.getText().toLowerCase()));
                             Set<String> foundSet = new HashSet<>();
                             for(Drink s: founds){
                                 foundSet.add(s.getName().toLowerCase());

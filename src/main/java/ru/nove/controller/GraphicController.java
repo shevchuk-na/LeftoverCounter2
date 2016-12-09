@@ -59,4 +59,8 @@ public class GraphicController {
     public List<Drink> getRegistry() {
         return model.getRegistry();
     }
+
+    public int checkRegistry(String drink) {
+        return model.checkregistry(drink);
+    }
 }

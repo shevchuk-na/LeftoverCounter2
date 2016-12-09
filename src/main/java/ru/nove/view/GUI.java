@@ -130,14 +130,23 @@ public class GUI {
             inputFrame.setVisible(true);
             name.setSelectedItem(null);
             amount.setText("");
-
+            defaultAmount.setText("");
         } else {
             inputFrame = new JFrame("Введите данные");
             JPanel panel = new JPanel();
-            name = new AutocompleteJComboBox(new DrinkSearchable(controller.getRegistry()));
             amount = new JTextField(5);
             JLabel defAmoLabel = new JLabel("Продажа по умолчанию:");
             defaultAmount = new JTextField(5);
+            name = new AutocompleteJComboBox(new DrinkSearchable(controller.getRegistry()));
+            name.addItemListener(e -> {
+                if(name.getSelectedItem() != null) {
+                    String drink = name.getSelectedItem().toString();
+                    int defAmount = controller.checkRegistry(drink);
+                    if (defAmount != 0) {
+                        defaultAmount.setText(String.valueOf(defAmount));
+                    }
+                }
+            });
             addButton = new JButton("Добавить");
             addButton.addActionListener( (e) -> addData());
             panel.add(name);

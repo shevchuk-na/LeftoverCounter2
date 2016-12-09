@@ -151,5 +151,14 @@ public class DrinkListModel {
     public List<Drink> getRegistry() {
         return archiveHandler.getArchive();
     }
+
+    public int checkregistry(String name) {
+        for(Drink drink:archiveHandler.getArchive()){
+            if(drink.getName().equals(name)){
+                return drink.getDefaultAmount();
+            }
+        }
+        return 0;
+    }
 }
 
