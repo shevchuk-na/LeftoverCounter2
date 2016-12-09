@@ -4,12 +4,13 @@ import ru.nove.model.entities.Drink;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class SaveLoadUtil {
     private static final String SAVE_FILE = "data/data.save";
     private static final String ARCHIVE_FILE = "data/archive.save";
 
-    public void saveData(ArrayList<Drink> drinks) throws IOException {
+    public void saveData(List<Drink> drinks) throws IOException {
         checkSaveFile(SAVE_FILE);
         ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(SAVE_FILE));
         oos.writeObject(drinks);
@@ -17,17 +18,17 @@ public class SaveLoadUtil {
         oos.close();
     }
 
-    public ArrayList<Drink> loadData() throws IOException, ClassNotFoundException {
+    public List<Drink> loadData() throws IOException, ClassNotFoundException {
         if(checkSaveFile(SAVE_FILE) == 1) {
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(SAVE_FILE));
-            ArrayList<Drink> drinks = (ArrayList<Drink>) ois.readObject();
+            List<Drink> drinks = (ArrayList<Drink>) ois.readObject();
             ois.close();
             return drinks;
         }
         return null;
     }
 
-    public void saveArchive(ArrayList<Drink> archive) throws IOException{
+    public void saveArchive(List<Drink> archive) throws IOException{
         checkSaveFile(ARCHIVE_FILE);
         ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ARCHIVE_FILE));
         oos.writeObject(archive);
@@ -35,10 +36,10 @@ public class SaveLoadUtil {
         oos.close();
     }
 
-    public ArrayList<Drink> loadArchive() throws IOException, ClassNotFoundException {
+    public List<Drink> loadArchive() throws IOException, ClassNotFoundException {
         if(checkSaveFile(ARCHIVE_FILE) == 1){
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(ARCHIVE_FILE));
-            ArrayList<Drink> archive = (ArrayList<Drink>) ois.readObject();
+            List<Drink> archive = (ArrayList<Drink>) ois.readObject();
             ois.close();
             return archive;
         }

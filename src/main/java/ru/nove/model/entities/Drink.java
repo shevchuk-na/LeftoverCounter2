@@ -6,7 +6,7 @@ import ru.nove.model.utils.DateUtil;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Drink implements Serializable{
+public class Drink implements Serializable, Comparable<Drink>{
     private String name;
     private int amount;
     private int defaultAmount;
@@ -61,5 +61,10 @@ public class Drink implements Serializable{
             amountHistory.remove(last);
             tsHistory.remove(last);
         }
+    }
+
+    @Override
+    public int compareTo(Drink o) {
+        return this.getName().compareTo(o.getName());
     }
 }

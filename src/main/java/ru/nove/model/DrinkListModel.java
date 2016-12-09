@@ -1,8 +1,6 @@
 package ru.nove.model;
 
 import ru.nove.model.entities.Drink;
-import ru.nove.model.searchable.StringSearchable;
-import ru.nove.model.utils.DateUtil;
 import ru.nove.model.utils.SaveLoadUtil;
 import ru.nove.view.GUI;
 
@@ -11,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DrinkListModel {
-    private ArrayList<Drink> drinks;
-    private ArrayList<Drink> salesThisSession;
+    private List<Drink> drinks;
+    private List<Drink> salesThisSession;
     private ArchiveHandler archiveHandler;
     private HistoryHandler historyHandler;
     private GUI gui;
@@ -28,11 +26,11 @@ public class DrinkListModel {
         this.gui = gui;
     }
 
-    public void setDrinks(ArrayList<Drink> drinks) {
+    public void setDrinks(List<Drink> drinks) {
         this.drinks = drinks;
     }
 
-    public ArrayList<Drink> getDrinks() {
+    public List<Drink> getDrinks() {
         return drinks;
     }
 
@@ -87,7 +85,7 @@ public class DrinkListModel {
     public void loadData() {
         saveLoad = new SaveLoadUtil();
         try {
-            ArrayList<Drink> loaded = saveLoad.loadData();
+            List<Drink> loaded = saveLoad.loadData();
             if(loaded != null){
                 setDrinks(loaded);
                 gui.showLoadedDrinks(drinks);
@@ -95,7 +93,7 @@ public class DrinkListModel {
             } else {
                 gui.showNewSaveFileInfo();
             }
-            ArrayList<Drink> loadedArchive = saveLoad.loadArchive();
+            List<Drink> loadedArchive = saveLoad.loadArchive();
             if(loadedArchive != null) {
 //                archiveHandler.setArchive(loadedArchive);
             }
@@ -150,7 +148,7 @@ public class DrinkListModel {
         gui.enableCancelButton(false);
     }
 
-    public List<String> getRegistry() {
+    public List<Drink> getRegistry() {
         return archiveHandler.getArchive();
     }
 }

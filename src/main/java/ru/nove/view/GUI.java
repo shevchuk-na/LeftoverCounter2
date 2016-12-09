@@ -2,12 +2,13 @@ package ru.nove.view;
 
 import ru.nove.controller.GraphicController;
 import ru.nove.model.entities.Drink;
-import ru.nove.model.searchable.StringSearchable;
+import ru.nove.model.searchable.DrinkSearchable;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class GUI {
     private static final int SALE_BUTTON = 3;
@@ -15,8 +16,9 @@ public class GUI {
     private static final int NAME = 0;
     private GraphicController controller;
     private JFrame mainFrame, historyFrame, inputFrame;
-    private JTextField name, amount, defaultAmount;
-    private ArrayList<Box> boxArray;
+    private JTextField amount, defaultAmount;
+    private AutocompleteJComboBox name;
+    private List<Box> boxArray;
     private Box mainBox;
     private JTextArea historyLog, logArea;
     private JRadioButton drinkOrderRadioButton;
@@ -126,22 +128,13 @@ public class GUI {
     private void createInputWindow(){
         if(inputFrame != null){
             inputFrame.setVisible(true);
-            name.setText("");
+            name.setSelectedItem(null);
             amount.setText("");
 
         } else {
             inputFrame = new JFrame("Введите данные");
             JPanel panel = new JPanel();
-            name = new AutocompleteJComboBox(new StringSearchable(controller.getRegistry()));
-            name = new JTextField(19);
-            name.addKeyListener(new KeyAdapter() {
-                @Override
-                public void keyTyped(KeyEvent e) {
-                    if(!name.getText().isEmpty() && !amount.getText().isEmpty() && !defaultAmount.getText().isEmpty()){
-                           addButton.setEnabled(true);
-                    }
-                }
-            });
+            name = new AutocompleteJComboBox(new DrinkSearchable(controller.getRegistry()));
             amount = new JTextField(5);
             JLabel defAmoLabel = new JLabel("Продажа по умолчанию:");
             defaultAmount = new JTextField(5);
@@ -165,7 +158,7 @@ public class GUI {
 
     private void addData() {
         inputFrame.setVisible(false);
-        controller.addDrink(name.getText(), Integer.parseInt(amount.getText()), Integer.parseInt(defaultAmount.getText()));
+        controller.addDrink(((String) name.getSelectedItem()), Integer.parseInt(amount.getText()), Integer.parseInt(defaultAmount.getText()));
     }
 
     public void updateAmount(String name, int amount) {
@@ -266,7 +259,7 @@ public class GUI {
         logArea.setText("Save error!");
     }
 
-    public void showLoadedDrinks(ArrayList<Drink> drinks) {
+    public void showLoadedDrinks(List<Drink> drinks) {
         drinks.forEach(this::addPosition);
     }
 

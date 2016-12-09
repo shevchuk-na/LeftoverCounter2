@@ -1,5 +1,6 @@
 package ru.nove.view;
 
+import ru.nove.model.entities.Drink;
 import ru.nove.model.searchable.Searchable;
 
 import javax.swing.*;
@@ -14,9 +15,9 @@ import java.util.List;
 
 public class AutocompleteJComboBox extends JComboBox{
 
-    private final Searchable<String, String> searchable;
+    private final Searchable<Drink, String> searchable;
 
-    public AutocompleteJComboBox(Searchable<String, String> s){
+    public AutocompleteJComboBox(Searchable<Drink, String> s){
         super();
         this.searchable = s;
         setEditable(true);
@@ -41,10 +42,10 @@ public class AutocompleteJComboBox extends JComboBox{
                     SwingUtilities.invokeLater(new Runnable() {
                         @Override
                         public void run() {
-                            List<String> founds = new ArrayList<String>(searchable.search(tc.getText()));
-                            Set<String> foundSet = new HashSet<String>();
-                            for(String s: founds){
-                                foundSet.add(s.toLowerCase());
+                            List<Drink> founds = new ArrayList<>(searchable.search(tc.getText()));
+                            Set<String> foundSet = new HashSet<>();
+                            for(Drink s: founds){
+                                foundSet.add(s.getName().toLowerCase());
                             }
                             Collections.sort(founds);
 
@@ -55,12 +56,13 @@ public class AutocompleteJComboBox extends JComboBox{
                                 addItem(tc.getText());
                             }
 
-                            for(String s:founds){
-                                addItem(s);
+                            for(Drink s:founds){
+                                addItem(s.getName());
                             }
 
                             setEditable(true);
                             setPopupVisible(true);
+                            tc.requestFocus();
                         }
                     });
                 }
