@@ -20,13 +20,7 @@ public class ArchiveHandler {
         return archive;
     }
 
-//    public void setArchive(ArrayList<Drink> archive){
-//        this.archive = archive;
-//    }
-
-    public Drink getLastAndRemove() {
-        Drink lastDrink = archive.get(archive.size() - 1);
-        archive.remove(lastDrink);
-        return lastDrink;
+    public void setArchive(List<Drink> archive) {
+        this.archive = archive;
     }
 }

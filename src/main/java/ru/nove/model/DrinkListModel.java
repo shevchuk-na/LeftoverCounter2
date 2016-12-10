@@ -1,6 +1,7 @@
 package ru.nove.model;
 
 import ru.nove.model.entities.Drink;
+import ru.nove.model.utils.AutoSaveUtil;
 import ru.nove.model.utils.SaveLoadUtil;
 import ru.nove.view.GUI;
 
@@ -13,6 +14,7 @@ public class DrinkListModel {
     private List<Drink> salesThisSession;
     private ArchiveHandler archiveHandler;
     private HistoryHandler historyHandler;
+    private AutoSaveUtil autoSaver;
     private GUI gui;
     private SaveLoadUtil saveLoad;
     private final int OK = 1;
@@ -21,9 +23,14 @@ public class DrinkListModel {
     public DrinkListModel(GUI gui) {
         drinks = new ArrayList<>();
         salesThisSession = new ArrayList<>();
-        this.archiveHandler = new ArchiveHandler();
-        this.historyHandler = new HistoryHandler(this, archiveHandler);
         this.gui = gui;
+        this.archiveHandler = new ArchiveHandler();
+        this.historyHandler = new HistoryHandler(archiveHandler);
+        this.saveLoad = new SaveLoadUtil();
+        Thread autoSaveThread = new Thread(new AutoSaveUtil(archiveHandler, saveLoad, this.gui));
+        autoSaveThread.setDaemon(true);
+        autoSaveThread.start();
+
     }
 
     public void setDrinks(List<Drink> drinks) {
@@ -34,26 +41,37 @@ public class DrinkListModel {
         return drinks;
     }
 
-    public void addDrink(String name, int amount, int defaultAmount){
-        Drink newDrink = new Drink(name, amount, defaultAmount);
-        if(checkDuplicateDrink(newDrink) == 1) {
-            drinks.add(newDrink);
-            archiveHandler.addToArchive(newDrink);
-            salesThisSession.add(newDrink);
-            gui.enableCancelButton(true);
-            gui.addPosition(newDrink);
-        } else {
-            gui.showDuplicateWarning();
+    public void addDrink(String name, int amount, int defaultAmount) {  //TODO:solve duplicate problem
+        Drink newDrink = null;
+        for (Drink drink : archiveHandler.getArchive()) {
+            if (drink.getName().equals(name)) {
+                if (drink.getAmount() != 0) {
+                    gui.showDuplicateWarning();
+                    return;
+                }
+                newDrink = drink;
+                break;
+            }
         }
+        if (newDrink == null) {
+            newDrink = new Drink(name, amount, defaultAmount);
+        } else {
+            newDrink.setAmount(amount);
+        }
+        drinks.add(newDrink);
+        archiveHandler.addToArchive(newDrink);
+        salesThisSession.add(newDrink);
+        gui.enableCancelButton(true);
+        gui.addPosition(newDrink);
     }
 
     private int checkDuplicateDrink(Drink newDrink) {
         for(Drink drink:drinks){
             if(drink.getName().toLowerCase().equals(newDrink.getName().toLowerCase())){
-                return -1;
+                return ERROR;
             }
         }
-        return 1;
+        return OK;
     }
 
     public void sellDrink(String name, int amount){
@@ -83,7 +101,7 @@ public class DrinkListModel {
                 return drinks.indexOf(drink);
             }
         }
-        return -1;
+        return ERROR;
     }
 
     public void exit() {
@@ -91,24 +109,24 @@ public class DrinkListModel {
     }
 
     public void viewHistory(int mode) {
-        ArrayList<String> history = historyHandler.formHistory(mode);
+        List<String> history = historyHandler.formHistory(mode);
         gui.displayHistory(history);
     }
 
     public void loadData() {
-        saveLoad = new SaveLoadUtil();
         try {
-            List<Drink> loaded = saveLoad.loadData();
-            if(loaded != null){
-                setDrinks(loaded);
+            List<Drink> loadedArchive = saveLoad.loadArchive();
+            if(loadedArchive != null) {
+                archiveHandler.setArchive(loadedArchive);
+                for(Drink drink:archiveHandler.getArchive()){
+                    if(drink.getAmount() != 0){
+                        drinks.add(drink);
+                    }
+                }
                 gui.showLoadedDrinks(drinks);
                 gui.showLoadedInfo();
             } else {
                 gui.showNewSaveFileInfo();
-            }
-            List<Drink> loadedArchive = saveLoad.loadArchive();
-            if(loadedArchive != null) {
-//                archiveHandler.setArchive(loadedArchive);
             }
         } catch (IOException | ClassNotFoundException e){
             e.printStackTrace();
@@ -118,7 +136,6 @@ public class DrinkListModel {
 
     public int saveData() {
         try {
-            saveLoad.saveData(drinks);
             saveLoad.saveArchive(archiveHandler.getArchive());
         } catch (IOException e) {
             e.printStackTrace();
@@ -137,7 +154,7 @@ public class DrinkListModel {
                 drinks.remove(indexOfDrinkLastSold);
             }else{
                 if(indexOfDrinkLastSold == -1){
-                    Drink removed = archiveHandler.getLastAndRemove();
+                    Drink removed = salesThisSession.get(lastSessionSaleIndex);
                     drinks.add(removed);
                     drinks.get(drinks.indexOf(removed)).removeSale();
                     gui.addPosition(drinks.get(drinks.indexOf(removed)));
@@ -165,7 +182,7 @@ public class DrinkListModel {
         return archiveHandler.getArchive();
     }
 
-    public int checkregistry(String name) {
+    public int checkRegistry(String name) {
         for(Drink drink:archiveHandler.getArchive()){
             if(drink.getName().equals(name)){
                 return drink.getDefaultAmount();

@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public abstract class DateUtil {
-    public static final String PATTERN = "dd.MM hh:mm";
+    public static final String PATTERN = "dd.MM HH:mm";
 
     public static long now(){
         Calendar calendar = Calendar.getInstance();

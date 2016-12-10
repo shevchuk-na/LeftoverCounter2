@@ -48,6 +48,10 @@ public class Drink implements Serializable, Comparable<Drink>{
         return defaultAmount;
     }
 
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
+
     public void addSale(int sale){
         amount -= sale;
         amountHistory.add(amount);

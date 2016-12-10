@@ -5,20 +5,18 @@ import ru.nove.model.utils.DateUtil;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 public class HistoryHandler {
-    private DrinkListModel model;
     private ArchiveHandler archiveHandler;
 
-    public HistoryHandler(DrinkListModel model, ArchiveHandler archiveHandeler){
-        this.model = model;
-        this.archiveHandler = archiveHandeler;
+    public HistoryHandler(ArchiveHandler archiveHandler){
+        this.archiveHandler = archiveHandler;
     }
 
-    public ArrayList<String> formHistory(int mode) {
-        ArrayList<String> history = new ArrayList<>();
-        ArrayList<Drink> allDrinks = new ArrayList<>();
-//        allDrinks.addAll(model.getDrinks());
+    public List<String> formHistory(int mode) {
+        List<String> history = new ArrayList<>();
+        List<Drink> allDrinks = new ArrayList<>();
         allDrinks.addAll(archiveHandler.getArchive());
 
         switch(mode){

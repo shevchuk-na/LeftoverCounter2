@@ -19,7 +19,7 @@ public class GraphicController {
 
     public void launch(){
         gui.createGui();
-//        model.loadData();
+        model.loadData();
         model.prepareGui();
     }
 
@@ -39,11 +39,11 @@ public class GraphicController {
 
 
     public void exit() {
-//        if(model.saveData() == OK){
+        if(model.saveData() == OK){
             model.exit();
-//        }else {
-//
-//        }
+        }else {
+            gui.showSaveError();
+        }
     }
 
     public void viewHistory(int mode) {
@@ -61,6 +61,6 @@ public class GraphicController {
     }
 
     public int checkRegistry(String drink) {
-        return model.checkregistry(drink);
+        return model.checkRegistry(drink);
     }
 }

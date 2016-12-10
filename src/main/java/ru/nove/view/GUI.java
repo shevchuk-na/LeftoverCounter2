@@ -12,11 +12,11 @@ import java.util.List;
 
 public class GUI {
     private static final int SALE_BUTTON = 3;
+    private static final int CUSTOM_SALE_BUTTON = 5;
     private static final int AMOUNT = 1;
-    private static final int NAME = 0;
     private GraphicController controller;
-    private JFrame mainFrame, historyFrame, inputFrame;
-    private JTextField amount, defaultAmount;
+    private JFrame mainFrame, historyFrame, inputFrame, customSaleFrame;
+    private JTextField amount, defaultAmount, nameField, saleAmount;
     private AutocompleteJComboBox name;
     private List<Box> boxArray;
     private Box mainBox;
@@ -37,7 +37,7 @@ public class GUI {
         mainPanel.add(mainBox, BorderLayout.CENTER);
         JScrollPane scrollPane = new JScrollPane(mainPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane.setPreferredSize(new Dimension(500, 500));
+        scrollPane.setPreferredSize(new Dimension(600, 500));
 
         Box topButtonBox = new Box(BoxLayout.X_AXIS);
         JButton addButton = new JButton("Add drink");
@@ -86,12 +86,24 @@ public class GUI {
         nameField.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(2,0,2,0),nameField.getBorder()));
         JTextField amountField = new JTextField(String.valueOf(drink.getAmount()),5);
         amountField.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(2,0,2,0),amountField.getBorder()));
-        JButton saleButton = new JButton("Sale");
+        JButton saleButton = new JButton("Sell " + drink.getDefaultAmount());
+        saleButton.setPreferredSize(new Dimension(90, 30));
         saleButton.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(2,0,2,0),saleButton.getBorder()));
         saleButton.addActionListener(e -> {
             for(Box sourceBox:boxArray){
                 if(e.getSource() == sourceBox.getComponent(SALE_BUTTON)){
                     sellDefaultAmount(sourceBox.getName());
+                    break;
+                }
+            }
+        });
+        JButton customSaleButton = new JButton("Sell ...");
+        customSaleButton.setPreferredSize(new Dimension(70, 30));
+        customSaleButton.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(2,0,2,0), customSaleButton.getBorder()));
+        customSaleButton.addActionListener(e -> {
+            for(Box sourcebox:boxArray){
+                if(e.getSource() == sourcebox.getComponent(CUSTOM_SALE_BUTTON)){
+                    createCustomSaleWindow(sourcebox.getName());
                     break;
                 }
             }
@@ -102,10 +114,51 @@ public class GUI {
         rowBox.add(amountField);
         rowBox.add(Box.createRigidArea(new Dimension(5,0)));
         rowBox.add(saleButton);
+        rowBox.add(Box.createRigidArea(new Dimension(3,0)));
+        rowBox.add(customSaleButton);
         rowBox.setName(drink.getName());
         boxArray.add(rowBox);
         mainBox.add(rowBox);
         updateFrame();
+    }
+
+    private void createCustomSaleWindow(String name) {
+        if(customSaleFrame == null){
+            customSaleFrame = new JFrame("Custom sale");
+            JPanel salePanel = new JPanel();
+            nameField = new JTextField(name, 10);
+            nameField.setEditable(false);
+            nameField.setMargin(new Insets(3,2,3,2));
+            saleAmount = new JTextField(5);
+            saleAmount.setMargin(new Insets(3,2,3,2));
+            JButton saleButton = new JButton("Sell");
+            saleButton.addActionListener(e -> {
+                try {
+                    if(saleAmount.getText().equals("")){
+                        saleAmount.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.RED), BorderFactory.createEmptyBorder(3,2,3,2)));
+                    } else {
+                        customSaleFrame.setVisible(false);
+                        sellAmount(name, Integer.parseInt(saleAmount.getText()));
+                    }
+                }catch (NumberFormatException ex){
+                    ex.printStackTrace();
+                    showNumberFormatWarning();
+                }
+            });
+            salePanel.add(nameField);
+            salePanel.add(saleAmount);
+            salePanel.add(saleButton);
+            customSaleFrame.getContentPane().add(salePanel);
+            customSaleFrame.setSize(new Dimension(280, 90));
+            customSaleFrame.setLocationRelativeTo(mainFrame);
+            customSaleFrame.setVisible(true);
+        } else {
+            nameField.setText(name);
+            saleAmount.setText("");
+            saleAmount.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.GRAY), BorderFactory.createEmptyBorder(3,2,3,2)));
+            customSaleFrame.setVisible(true);
+        }
+
     }
 
     private void updateFrame() {
@@ -220,6 +273,9 @@ public class GUI {
         if(inputFrame != null) {
             inputFrame.dispose();
         }
+        if(customSaleFrame != null){
+            customSaleFrame.dispose();
+        }
         mainFrame.dispose();
 
     }
@@ -272,7 +328,7 @@ public class GUI {
         }
     }
 
-    public void displayHistory(ArrayList<String> history) {
+    public void displayHistory(List<String> history) {
         historyLog.setText("");
         for(String line:history){
             historyLog.append(line+"\n");
@@ -319,5 +375,9 @@ public class GUI {
 
     public void showDuplicateWarning() {
         logArea.setText("Drink already in the list!");
+    }
+
+    public void showAutoSaveInfo() {
+        logArea.setText("Autosave complete!");
     }
 }
