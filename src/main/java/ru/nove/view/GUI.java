@@ -11,9 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GUI {
+    private static final int AMOUNT = 1;
     private static final int SALE_BUTTON = 3;
     private static final int CUSTOM_SALE_BUTTON = 5;
-    private static final int AMOUNT = 1;
+    private static final int ADD_AMOUNT = 7;
     private GraphicController controller;
     private JFrame mainFrame, historyFrame, inputFrame, customSaleFrame;
     private JTextField amount, defaultAmount, nameField, saleAmount;
@@ -108,6 +109,17 @@ public class GUI {
                 }
             }
         });
+        JButton addAmountButton = new JButton("Add ...");
+        addAmountButton.setPreferredSize(new Dimension(70, 30));
+        addAmountButton.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(2,0,2,0), addAmountButton.getBorder()));
+        addAmountButton.addActionListener(e -> {
+            for(Box sourcebox:boxArray){
+                if(e.getSource() == sourcebox.getComponent(ADD_AMOUNT)){
+                    createAddWindow(sourcebox.getName());
+                    break;
+                }
+            }
+        });
         nameField.setEditable(false);
         amountField.setEditable(false);
         rowBox.add(nameField);
@@ -116,17 +128,22 @@ public class GUI {
         rowBox.add(saleButton);
         rowBox.add(Box.createRigidArea(new Dimension(3,0)));
         rowBox.add(customSaleButton);
+        rowBox.add(Box.createRigidArea(new Dimension(3,0)));
+        rowBox.add(addAmountButton);
         rowBox.setName(drink.getName());
         boxArray.add(rowBox);
         mainBox.add(rowBox);
         updateFrame();
     }
 
-    private void createCustomSaleWindow(String name) {
+    private void createAddWindow(String name) {     //TODO: write code
+    }
+
+    private void createCustomSaleWindow(String drink) {
         if(customSaleFrame == null){
             customSaleFrame = new JFrame("Custom sale");
             JPanel salePanel = new JPanel();
-            nameField = new JTextField(name, 10);
+            nameField = new JTextField(drink, 10);
             nameField.setEditable(false);
             nameField.setMargin(new Insets(3,2,3,2));
             saleAmount = new JTextField(5);
@@ -138,7 +155,7 @@ public class GUI {
                         saleAmount.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.RED), BorderFactory.createEmptyBorder(3,2,3,2)));
                     } else {
                         customSaleFrame.setVisible(false);
-                        sellAmount(name, Integer.parseInt(saleAmount.getText()));
+                        sellAmount(nameField.getText(), Integer.parseInt(saleAmount.getText()));
                     }
                 }catch (NumberFormatException ex){
                     ex.printStackTrace();
@@ -153,12 +170,11 @@ public class GUI {
             customSaleFrame.setLocationRelativeTo(mainFrame);
             customSaleFrame.setVisible(true);
         } else {
-            nameField.setText(name);
+            nameField.setText(drink);
             saleAmount.setText("");
             saleAmount.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.GRAY), BorderFactory.createEmptyBorder(3,2,3,2)));
             customSaleFrame.setVisible(true);
         }
-
     }
 
     private void updateFrame() {

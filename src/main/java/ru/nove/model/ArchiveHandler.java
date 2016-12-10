@@ -16,6 +16,10 @@ public class ArchiveHandler {
         archive.add(drink);
     }
 
+    public void removeFromArchive(Drink drink){
+        archive.remove(drink);
+    }
+
     public List<Drink> getArchive(){
         return archive;
     }

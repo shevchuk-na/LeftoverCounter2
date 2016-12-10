@@ -41,7 +41,7 @@ public class DrinkListModel {
         return drinks;
     }
 
-    public void addDrink(String name, int amount, int defaultAmount) {  //TODO:solve duplicate problem
+    public void addDrink(String name, int amount, int defaultAmount) {
         Drink newDrink = null;
         for (Drink drink : archiveHandler.getArchive()) {
             if (drink.getName().equals(name)) {
@@ -55,11 +55,11 @@ public class DrinkListModel {
         }
         if (newDrink == null) {
             newDrink = new Drink(name, amount, defaultAmount);
+            archiveHandler.addToArchive(newDrink);
         } else {
-            newDrink.setAmount(amount);
+            newDrink.addAmount(amount);
         }
         drinks.add(newDrink);
-        archiveHandler.addToArchive(newDrink);
         salesThisSession.add(newDrink);
         gui.enableCancelButton(true);
         gui.addPosition(newDrink);
@@ -148,19 +148,31 @@ public class DrinkListModel {
     public void deleteLast() {
         if(salesThisSession.size() != 0){
             int lastSessionSaleIndex = salesThisSession.size()-1;
-            int indexOfDrinkLastSold = drinks.indexOf(salesThisSession.get(lastSessionSaleIndex));
-            if(salesThisSession.get(lastSessionSaleIndex).getAmountHistory().size() == 1){
-                gui.removePosition(drinks.get(indexOfDrinkLastSold).getName());
-                drinks.remove(indexOfDrinkLastSold);
-            }else{
-                if(indexOfDrinkLastSold == -1){
-                    Drink removed = salesThisSession.get(lastSessionSaleIndex);
-                    drinks.add(removed);
-                    drinks.get(drinks.indexOf(removed)).removeSale();
-                    gui.addPosition(drinks.get(drinks.indexOf(removed)));
+            int lastDrinkIndex = archiveHandler.getArchive().indexOf(salesThisSession.get(lastSessionSaleIndex));
+            Drink lastDrink = archiveHandler.getArchive().get(lastDrinkIndex);
+            if(lastDrink.getAmountHistory().size() == 1){
+                gui.removePosition(lastDrink.getName());
+                archiveHandler.removeFromArchive(lastDrink);
+            } else {
+                int lastAmount = lastDrink.getAmountHistory().get(lastDrink.getAmountHistory().size() - 1);
+                int amountBeforeLast = lastDrink.getAmountHistory().get(lastDrink.getAmountHistory().size() - 2);
+                if(lastAmount > amountBeforeLast){
+                    if(amountBeforeLast == 0){
+                        gui.removePosition(lastDrink.getName());
+                        lastDrink.removeSale();
+                        drinks.remove(lastDrink);
+                    } else {
+                        lastDrink.removeSale();
+                    }
                 } else {
-                    drinks.get(indexOfDrinkLastSold).removeSale();
-                    gui.updateAmount(drinks.get(indexOfDrinkLastSold).getName(), drinks.get(indexOfDrinkLastSold).getAmount());
+                    if(lastAmount == 0){
+                        lastDrink.removeSale();
+                        drinks.add(lastDrink);
+                        gui.addPosition(lastDrink);
+                    } else {
+                        lastDrink.removeSale();
+                        gui.updateAmount(lastDrink.getName(), lastDrink.getAmount());
+                    }
                 }
             }
             salesThisSession.remove(lastSessionSaleIndex);
