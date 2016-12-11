@@ -163,27 +163,27 @@ public class DrinkListModel {
             int lastSessionSaleIndex = salesThisSession.size()-1;
             int lastDrinkIndex = archiveHandler.getArchive().indexOf(salesThisSession.get(lastSessionSaleIndex));
             Drink lastDrink = archiveHandler.getArchive().get(lastDrinkIndex);
-            if(lastDrink.getAmountHistory().size() == 1){
+            if(lastDrink.getAmountHistory().size() == 1){                   //только что добавили
                 gui.removePosition(lastDrink.getName());
                 archiveHandler.removeFromArchive(lastDrink);
             } else {
                 int lastAmount = lastDrink.getAmountHistory().get(lastDrink.getAmountHistory().size() - 1);
                 int amountBeforeLast = lastDrink.getAmountHistory().get(lastDrink.getAmountHistory().size() - 2);
-                if(lastAmount > amountBeforeLast){
-                    if(amountBeforeLast == 0){
+                if(lastAmount > amountBeforeLast){                          //добавили
+                    if(amountBeforeLast == 0){                              //реактивация позиции
                         gui.removePosition(lastDrink.getName());
                         lastDrink.removeSale();
                         drinks.remove(lastDrink);
-                    } else {
+                    } else {                                                //просто добавление
                         lastDrink.removeSale();
                         gui.updateAmount(lastDrink.getName(), lastDrink.getAmount());
                     }
-                } else {
-                    if(lastAmount == 0){
+                } else {                                                    //убрали
+                    if(lastAmount == 0){                                    //убрали последнее
                         lastDrink.removeSale();
                         drinks.add(lastDrink);
                         gui.addPosition(lastDrink);
-                    } else {
+                    } else {                                                //просто убрали
                         lastDrink.removeSale();
                         gui.updateAmount(lastDrink.getName(), lastDrink.getAmount());
                     }
