@@ -514,4 +514,8 @@ public class GUI {
     public void showCancelInfo() {
         logArea.setText("Отмена");
     }
+
+    public void showAddInfo(Drink drink, int amount) {
+        logArea.setText("Добавил " + amount + "мл " + drink.getName() + ". Осталось " + drink.getAmount());
+    }
 }

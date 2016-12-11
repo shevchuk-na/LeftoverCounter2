@@ -92,6 +92,7 @@ public class DrinkListModel {
         drink.addAmount(amount);
         salesThisSession.add(drink);
         gui.enableCancelButton(true);
+        gui.showAddInfo(drink, amount);
         if(drink.getAmount() == 0){
             gui.removePosition(drink.getName());
             drinks.remove(drink);
