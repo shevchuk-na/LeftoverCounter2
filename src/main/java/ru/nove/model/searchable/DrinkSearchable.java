@@ -10,7 +10,7 @@ public class DrinkSearchable implements Searchable<Drink, String>{
 
     private List<Drink> drinks = new ArrayList<>();
 
-    public DrinkSearchable(List drinks){
+    public DrinkSearchable(List<Drink> drinks){
         this.drinks = drinks;
     }
 

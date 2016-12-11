@@ -231,7 +231,7 @@ public class GUI {
                     break;
             }
             JPanel salePanel = new JPanel();
-            nameField = new JTextField(drink, 10);
+            nameField = new JTextField(drink, 15);
             nameField.setEditable(false);
             nameField.setMargin(new Insets(3,2,3,2));
             saleAmount = new JTextField(5);
@@ -241,7 +241,7 @@ public class GUI {
             salePanel.add(saleAmount);
             salePanel.add(saleButton);
             customFrame.getContentPane().add(salePanel);
-            customFrame.setSize(new Dimension(310, 80));
+            customFrame.setSize(new Dimension(360, 80));
             customFrame.setLocationRelativeTo(mainFrame);
             customFrame.setVisible(true);
             saleAmount.requestFocus();
