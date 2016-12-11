@@ -104,6 +104,13 @@ public class DrinkListModel {
         return ERROR;
     }
 
+    public void addAmount(String name, int amount){
+        Drink drink = drinks.get(getDrinkIndex(name));
+        drink.addAmount(amount);
+        salesThisSession.add(drink);
+        gui.updateAmount(drink.getName(), drink.getAmount());
+    }
+
     public void exit() {
         gui.closeAllFrames();
     }

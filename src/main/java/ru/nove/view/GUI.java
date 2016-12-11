@@ -15,8 +15,10 @@ public class GUI {
     private static final int SALE_BUTTON = 3;
     private static final int CUSTOM_SALE_BUTTON = 5;
     private static final int ADD_AMOUNT = 7;
+    private static final String CUSTOM_SALE = "customSale";
+    private static final String CUSTOM_ADD = "customAdd";
     private GraphicController controller;
-    private JFrame mainFrame, historyFrame, inputFrame, customSaleFrame;
+    private JFrame mainFrame, historyFrame, inputFrame, customFrame;
     private JTextField amount, defaultAmount, nameField, saleAmount;
     private AutocompleteJComboBox name;
     private List<Box> boxArray;
@@ -104,7 +106,7 @@ public class GUI {
         customSaleButton.addActionListener(e -> {
             for(Box sourcebox:boxArray){
                 if(e.getSource() == sourcebox.getComponent(CUSTOM_SALE_BUTTON)){
-                    createCustomSaleWindow(sourcebox.getName());
+                    createCustomWindow(sourcebox.getName(), CUSTOM_SALE);
                     break;
                 }
             }
@@ -115,7 +117,7 @@ public class GUI {
         addAmountButton.addActionListener(e -> {
             for(Box sourcebox:boxArray){
                 if(e.getSource() == sourcebox.getComponent(ADD_AMOUNT)){
-                    createAddWindow(sourcebox.getName());
+                    createCustomWindow(sourcebox.getName(), CUSTOM_ADD);
                     break;
                 }
             }
@@ -136,26 +138,39 @@ public class GUI {
         updateFrame();
     }
 
-    private void createAddWindow(String name) {     //TODO: write code
-    }
-
-    private void createCustomSaleWindow(String drink) {
-        if(customSaleFrame == null){
-            customSaleFrame = new JFrame("Custom sale");
+    private void createCustomWindow(String drink, String command) {
+        if(customFrame == null){
+            JButton saleButton = null;
+            switch(command){
+                case CUSTOM_SALE:
+                    customFrame = new JFrame("Custom sale");
+                    saleButton = new JButton("Sell");
+                    break;
+                case CUSTOM_ADD:
+                    customFrame = new JFrame("Add amount");
+                    saleButton = new JButton("Add");
+                    break;
+            }
             JPanel salePanel = new JPanel();
             nameField = new JTextField(drink, 10);
             nameField.setEditable(false);
             nameField.setMargin(new Insets(3,2,3,2));
             saleAmount = new JTextField(5);
             saleAmount.setMargin(new Insets(3,2,3,2));
-            JButton saleButton = new JButton("Sell");
             saleButton.addActionListener(e -> {
                 try {
                     if(saleAmount.getText().equals("")){
                         saleAmount.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.RED), BorderFactory.createEmptyBorder(3,2,3,2)));
                     } else {
-                        customSaleFrame.setVisible(false);
-                        sellAmount(nameField.getText(), Integer.parseInt(saleAmount.getText()));
+                        customFrame.setVisible(false);
+                        switch(command){
+                            case CUSTOM_SALE:
+                                controller.sellAmount(nameField.getText(), Integer.parseInt(saleAmount.getText()));
+                                break;
+                            case CUSTOM_ADD:
+                                controller.addAmount(nameField.getText(), Integer.parseInt(saleAmount.getText()));
+                                break;
+                        }
                     }
                 }catch (NumberFormatException ex){
                     ex.printStackTrace();
@@ -165,15 +180,15 @@ public class GUI {
             salePanel.add(nameField);
             salePanel.add(saleAmount);
             salePanel.add(saleButton);
-            customSaleFrame.getContentPane().add(salePanel);
-            customSaleFrame.setSize(new Dimension(280, 90));
-            customSaleFrame.setLocationRelativeTo(mainFrame);
-            customSaleFrame.setVisible(true);
+            customFrame.getContentPane().add(salePanel);
+            customFrame.setSize(new Dimension(280, 90));
+            customFrame.setLocationRelativeTo(mainFrame);
+            customFrame.setVisible(true);
         } else {
             nameField.setText(drink);
             saleAmount.setText("");
             saleAmount.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.GRAY), BorderFactory.createEmptyBorder(3,2,3,2)));
-            customSaleFrame.setVisible(true);
+            customFrame.setVisible(true);
         }
     }
 
@@ -289,8 +304,8 @@ public class GUI {
         if(inputFrame != null) {
             inputFrame.dispose();
         }
-        if(customSaleFrame != null){
-            customSaleFrame.dispose();
+        if(customFrame != null){
+            customFrame.dispose();
         }
         mainFrame.dispose();
 

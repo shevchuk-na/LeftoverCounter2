@@ -63,4 +63,8 @@ public class GraphicController {
     public int checkRegistry(String drink) {
         return model.checkRegistry(drink);
     }
+
+    public void addAmount(String drink, int amount) {
+        model.addAmount(drink, amount);
+    }
 }
