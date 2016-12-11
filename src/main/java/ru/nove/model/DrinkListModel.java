@@ -32,14 +32,6 @@ public class DrinkListModel {
 
     }
 
-    public void setDrinks(List<Drink> drinks) {
-        this.drinks = drinks;
-    }
-
-    public List<Drink> getDrinks() {
-        return drinks;
-    }
-
     public void addDrink(String name, int amount, int defaultAmount) {
         Drink newDrink = null;
         for (Drink drink : archiveHandler.getArchive()) {
@@ -62,15 +54,6 @@ public class DrinkListModel {
         salesThisSession.add(newDrink);
         gui.enableCancelButton(true);
         gui.addPosition(newDrink);
-    }
-
-    private int checkDuplicateDrink(Drink newDrink) {
-        for(Drink drink:drinks){
-            if(drink.getName().toLowerCase().equals(newDrink.getName().toLowerCase())){
-                return ERROR;
-            }
-        }
-        return OK;
     }
 
     public void sellDrink(String name, int amount){
@@ -195,10 +178,6 @@ public class DrinkListModel {
             }
             gui.showCancelInfo();
         }
-    }
-
-    private void drinkSold(Drink drink){
-
     }
 
     public void prepareGui() {

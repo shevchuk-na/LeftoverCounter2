@@ -7,14 +7,14 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class HistoryHandler {
+class HistoryHandler {
     private ArchiveHandler archiveHandler;
 
-    public HistoryHandler(ArchiveHandler archiveHandler){
+    HistoryHandler(ArchiveHandler archiveHandler){
         this.archiveHandler = archiveHandler;
     }
 
-    public List<String> formHistory(int mode) {
+    List<String> formHistory(int mode) {
         List<String> history = new ArrayList<>();
         List<Drink> allDrinks = new ArrayList<>();
         allDrinks.addAll(archiveHandler.getArchive());

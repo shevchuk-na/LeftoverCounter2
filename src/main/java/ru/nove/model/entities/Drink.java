@@ -12,11 +12,7 @@ public class Drink implements Serializable, Comparable<Drink>{
     private int defaultAmount;
     private ArrayList<Integer> amountHistory;
     private ArrayList<Long> tsHistory;
-    private final long serialVersionUID = -3573495;
-
-    public Drink(String name, int amount) {
-        this(name, amount, 50);
-    }
+    private static final long serialVersionUID = -3573495L;
 
     public Drink(String name, int amount, int defaultAmount){
         this.name = name;

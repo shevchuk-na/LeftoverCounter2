@@ -8,15 +8,15 @@ import java.util.List;
 public class ArchiveHandler {
     private List<Drink> archive;
 
-    public ArchiveHandler(){
+    ArchiveHandler(){
         this.archive = new ArrayList<>();
     }
 
-    public void addToArchive(Drink drink){
+    void addToArchive(Drink drink){
         archive.add(drink);
     }
 
-    public void removeFromArchive(Drink drink){
+    void removeFromArchive(Drink drink){
         archive.remove(drink);
     }
 
@@ -24,7 +24,7 @@ public class ArchiveHandler {
         return archive;
     }
 
-    public void setArchive(List<Drink> archive) {
+    void setArchive(List<Drink> archive) {
         this.archive = archive;
     }
 }
