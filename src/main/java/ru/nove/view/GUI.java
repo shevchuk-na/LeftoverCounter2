@@ -19,7 +19,7 @@ public class GUI {
     private static final String CUSTOM_SALE = "customSale";
     private static final String CUSTOM_ADD = "customAdd";
     private static final String ALPHABETICAL = "alphabetical";
-    private static final String CHRONOLOGICAL = "chronological";
+    private static final String AVAILABLE = "available";
     private GraphicController controller;
     private JFrame mainFrame, historyFrame, inputFrame, customFrame, filterFrame;
     private JTextField amount, defaultAmount, nameField, saleAmount;
@@ -96,13 +96,13 @@ public class GUI {
             ButtonGroup viewGroup = new ButtonGroup();
             JRadioButton alphabetView = new JRadioButton("По алфавиту");
             alphabetView.setSelected(true);
-            JRadioButton chronoView = new JRadioButton("По дате добавления");
+            JRadioButton chronoView = new JRadioButton("По количеству");
             JButton applyViewButton = new JButton("Применить");
             applyViewButton.addActionListener(e -> {
                 if(alphabetView.isSelected()){
                     modifyView(ALPHABETICAL);
                 }else if(chronoView.isSelected()){
-//                    modifyView(CHRONOLOGICAL);
+                    modifyView(AVAILABLE);
                 }
             });
             viewGroup.add(alphabetView);
@@ -110,7 +110,7 @@ public class GUI {
             filterPanel.add(alphabetView);
             filterPanel.add(chronoView);
             filterPanel.add(applyViewButton);
-            filterPanel.setPreferredSize(new Dimension(300, 100));
+            filterPanel.setPreferredSize(new Dimension(300, 70));
 
             filterFrame.getContentPane().add(filterPanel);
             filterFrame.pack();
@@ -125,25 +125,32 @@ public class GUI {
         mainBox.removeAll();
         switch(order){
             case ALPHABETICAL:
-                boxArray.sort(getSortByName());
+                boxArray.sort(getSortBoxByName());
                 break;
-            case CHRONOLOGICAL:
-//                boxArray.sort(getSortByDefault());
+            case AVAILABLE:
+                boxArray.sort(getSortByAmount());
                 break;
         }
-
         for(Box row:boxArray){
             mainBox.add(row);
         }
-        filterFrame.setVisible(false);
+        if(filterFrame != null && filterFrame.isVisible()) {
+            filterFrame.setVisible(false);
+        }
         updateFrame();
     }
 
-//    private Comparator<Box> getSortByDefault() {
-//        return (d1, d2) -> d1.getComponent(SALE_BUTT
-//    }
+    private Comparator<Box> getSortByAmount() {
+        return (d1, d2) -> {
+            JTextField field1 = (JTextField) d1.getComponent(AMOUNT);
+            JTextField field2 = (JTextField) d2.getComponent(AMOUNT);
+            int amount1 = Integer.parseInt(field1.getText());
+            int amount2 = Integer.parseInt(field2.getText());
+            return amount2 - amount1;
+        };
+    }
 
-    private Comparator<Box> getSortByName() {
+    private Comparator<Box> getSortBoxByName() {
         return (d1, d2) -> d1.getName().compareTo(d2.getName());
     }
 
@@ -358,6 +365,15 @@ public class GUI {
         }
     }
 
+    public void showLoadedDrinks(List<Drink> drinks) {
+        drinks.sort(getSortDrinkByName());
+        drinks.forEach(this::addPosition);
+    }
+
+    private Comparator<Drink> getSortDrinkByName() {
+        return (d1, d2) -> d1.getName().compareTo(d2.getName());
+    }
+
     private void addData() {
         inputFrame.setVisible(false);
         try {
@@ -365,10 +381,6 @@ public class GUI {
         }catch (NumberFormatException e){
             showNumberFormatWarning();
         }
-    }
-
-    private void showNumberFormatWarning() {
-        logArea.setText("Позиция НЕ добавлена\nВводите корректный данные в поля количества");
     }
 
     public void updateAmount(String name, int amount) {
@@ -475,10 +487,6 @@ public class GUI {
         logArea.setText("Ошибка сохранения");
     }
 
-    public void showLoadedDrinks(List<Drink> drinks) {
-        drinks.forEach(this::addPosition);
-    }
-
     public void enableCancelButton(boolean b) {
         cancelButton.setEnabled(b);
     }
@@ -493,5 +501,17 @@ public class GUI {
 
     public void showAutoSaveInfo() {
         logArea.setText("Автосохранение данных...");
+    }
+
+    private void showNumberFormatWarning() {
+        logArea.setText("Позиция НЕ добавлена\nВводите корректный данные в поля количества");
+    }
+
+    public void showSaleInfo(Drink drink, int amount) {
+        logArea.setText("Продал " + amount + "мл " + drink.getName() + ". Осталось " + drink.getAmount());
+    }
+
+    public void showCancelInfo() {
+        logArea.setText("Отмена");
     }
 }
