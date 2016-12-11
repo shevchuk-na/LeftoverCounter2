@@ -54,16 +54,24 @@ class HistoryHandler {
     }
 
     private String makeHistoryLine(Drink drink, int i) {
+        String historyLine = DateUtil.formatTime(drink.getTsHistory().get(i)) + " - " + drink.getName();
         if(i == 0) {
-            return DateUtil.formatTime(drink.getTsHistory().get(i)) + " - " + drink.getName() +
-                    " +" + drink.getAmountHistory().get(i) + ": " + drink.getAmountHistory().get(i);
-        } else if(drink.getAmountHistory().get(i) > drink.getAmountHistory().get(i-1)){
-            return DateUtil.formatTime(drink.getTsHistory().get(i)) + " - " + drink.getName() +
-                    " +" + (drink.getAmountHistory().get(i) - drink.getAmountHistory().get(i - 1)) + ": " + drink.getAmountHistory().get(i);
-        } else{
-            return DateUtil.formatTime(drink.getTsHistory().get(i)) + " - " + drink.getName() +
-                    " " + (drink.getAmountHistory().get(i) - drink.getAmountHistory().get(i - 1)) + ": " + drink.getAmountHistory().get(i);
+            if(drink.getAmountHistory().get(i) < 0){
+                historyLine += " ";
+            }else{
+                historyLine += " +";
+            }
+            historyLine += drink.getAmountHistory().get(i);
+        } else {
+            if (drink.getAmountHistory().get(i) > drink.getAmountHistory().get(i - 1)) {
+                historyLine += " +";
+            } else {
+                historyLine += " ";
+            }
+            historyLine += (drink.getAmountHistory().get(i) - drink.getAmountHistory().get(i - 1));
         }
+        historyLine += ": " + drink.getAmountHistory().get(i);
+        return historyLine;
     }
 
     private static Comparator<Drink> getCompByName(){
