@@ -4,9 +4,12 @@ import ru.nove.controller.GraphicController;
 import ru.nove.model.entities.Drink;
 import ru.nove.model.searchable.DrinkSearchable;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +28,7 @@ public class GUI {
     private Box mainBox;
     private JTextArea historyLog, logArea;
     private JRadioButton drinkOrderRadioButton;
-    private JButton cancelButton, addButton;
+    private JButton cancelButton, addButton, saleButton;
 
     public GUI(GraphicController controller) {
         this.controller = controller;
@@ -40,16 +43,16 @@ public class GUI {
         mainPanel.add(mainBox, BorderLayout.CENTER);
         JScrollPane scrollPane = new JScrollPane(mainPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane.setPreferredSize(new Dimension(600, 500));
+        scrollPane.setPreferredSize(new Dimension(575, 500));
 
         Box topButtonBox = new Box(BoxLayout.X_AXIS);
-        JButton addButton = new JButton("Add drink");
+        JButton addButton = new JButton("Добавить позицию");
         addButton.addActionListener(e -> add());
-        JButton historyButton = new JButton("View history");
+        JButton historyButton = new JButton("Просмотр истории");
         historyButton.addActionListener(e -> createHistoryWindow());
-        cancelButton = new JButton("Cancel last");
+        cancelButton = new JButton("Отменить");
         cancelButton.addActionListener(e -> cancelLast());
-        JButton exitButton = new JButton("Exit");
+        JButton exitButton = new JButton("Выход");
         exitButton.addActionListener(e -> exit());
         topButtonBox.add(addButton);
         topButtonBox.add(Box.createRigidArea(new Dimension(10,0)));
@@ -63,6 +66,9 @@ public class GUI {
         logArea = new JTextArea();
         logArea.setPreferredSize(new Dimension(500, 40));
         logArea.setMargin(new Insets(2,5,2,5));
+
+        Image image = new ImageIcon("res/icon.png").getImage();
+        mainFrame.setIconImage(image);
 
         mainFrame.getContentPane().add(topButtonBox, BorderLayout.NORTH);
         mainFrame.getContentPane().add(scrollPane, BorderLayout.CENTER);
@@ -85,12 +91,15 @@ public class GUI {
 
     public void addPosition(Drink drink){
         Box rowBox = new Box(BoxLayout.X_AXIS);
-        JTextField nameField = new JTextField(drink.getName(),30);
-        nameField.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(2,0,2,0),nameField.getBorder()));
+        JTextField nameField = new JTextField(drink.getName(), 18);
+        nameField.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(2,2,2,0),nameField.getBorder()));
+        nameField.setFont(nameField.getFont().deriveFont(Font.BOLD));
         JTextField amountField = new JTextField(String.valueOf(drink.getAmount()),5);
-        amountField.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(2,0,2,0),amountField.getBorder()));
-        JButton saleButton = new JButton("Sell " + drink.getDefaultAmount());
-        saleButton.setPreferredSize(new Dimension(90, 30));
+        amountField.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(2,2,2,0),amountField.getBorder()));
+        amountField.setHorizontalAlignment(JTextField.CENTER);
+        amountField.setFont(amountField.getFont().deriveFont(Font.BOLD));
+        JButton saleButton = new JButton("Продать " + drink.getDefaultAmount());
+        saleButton.setPreferredSize(new Dimension(110, 30));
         saleButton.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(2,0,2,0),saleButton.getBorder()));
         saleButton.addActionListener(e -> {
             for(Box sourceBox:boxArray){
@@ -100,8 +109,8 @@ public class GUI {
                 }
             }
         });
-        JButton customSaleButton = new JButton("Sell ...");
-        customSaleButton.setPreferredSize(new Dimension(70, 30));
+        JButton customSaleButton = new JButton("Продать");
+        customSaleButton.setPreferredSize(new Dimension(85, 30));
         customSaleButton.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(2,0,2,0), customSaleButton.getBorder()));
         customSaleButton.addActionListener(e -> {
             for(Box sourcebox:boxArray){
@@ -111,8 +120,8 @@ public class GUI {
                 }
             }
         });
-        JButton addAmountButton = new JButton("Add ...");
-        addAmountButton.setPreferredSize(new Dimension(70, 30));
+        JButton addAmountButton = new JButton("Добавить");
+        addAmountButton.setPreferredSize(new Dimension(90, 30));
         addAmountButton.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(2,0,2,0), addAmountButton.getBorder()));
         addAmountButton.addActionListener(e -> {
             for(Box sourcebox:boxArray){
@@ -140,15 +149,16 @@ public class GUI {
 
     private void createCustomWindow(String drink, String command) {
         if(customFrame == null){
-            JButton saleButton = null;
-            switch(command){
+            customFrame = new JFrame();
+            saleButton = new JButton();
+            switch (command){
                 case CUSTOM_SALE:
-                    customFrame = new JFrame("Custom sale");
-                    saleButton = new JButton("Sell");
+                    customFrame.setTitle("Продать количество");
+                    saleButton.setText("Продать");
                     break;
                 case CUSTOM_ADD:
-                    customFrame = new JFrame("Add amount");
-                    saleButton = new JButton("Add");
+                    customFrame.setTitle("Добавить количество");
+                    saleButton.setText("Добавить");
                     break;
             }
             JPanel salePanel = new JPanel();
@@ -157,38 +167,52 @@ public class GUI {
             nameField.setMargin(new Insets(3,2,3,2));
             saleAmount = new JTextField(5);
             saleAmount.setMargin(new Insets(3,2,3,2));
-            saleButton.addActionListener(e -> {
-                try {
-                    if(saleAmount.getText().equals("")){
-                        saleAmount.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.RED), BorderFactory.createEmptyBorder(3,2,3,2)));
-                    } else {
-                        customFrame.setVisible(false);
-                        switch(command){
-                            case CUSTOM_SALE:
-                                controller.sellAmount(nameField.getText(), Integer.parseInt(saleAmount.getText()));
-                                break;
-                            case CUSTOM_ADD:
-                                controller.addAmount(nameField.getText(), Integer.parseInt(saleAmount.getText()));
-                                break;
-                        }
-                    }
-                }catch (NumberFormatException ex){
-                    ex.printStackTrace();
-                    showNumberFormatWarning();
-                }
-            });
+            saleButton.addActionListener(e -> performCustomAction(nameField.getText(), saleAmount.getText(), saleButton.getText()));
             salePanel.add(nameField);
             salePanel.add(saleAmount);
             salePanel.add(saleButton);
             customFrame.getContentPane().add(salePanel);
-            customFrame.setSize(new Dimension(280, 90));
+            customFrame.setSize(new Dimension(310, 80));
             customFrame.setLocationRelativeTo(mainFrame);
             customFrame.setVisible(true);
+            saleAmount.requestFocus();
         } else {
+            switch (command){
+                case CUSTOM_SALE:
+                    customFrame.setTitle("Продать количество");
+                    saleButton.setText("Продать");
+                    break;
+                case CUSTOM_ADD:
+                    customFrame.setTitle("Добавить количество");
+                    saleButton.setText("Добавить");
+                    break;
+            }
             nameField.setText(drink);
             saleAmount.setText("");
             saleAmount.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.GRAY), BorderFactory.createEmptyBorder(3,2,3,2)));
             customFrame.setVisible(true);
+            saleAmount.requestFocus();
+        }
+    }
+
+    private void performCustomAction(String name, String amount, String command){
+        try {
+            if(amount.equals("")){
+                saleAmount.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.RED), BorderFactory.createEmptyBorder(3,2,3,2)));
+            } else {
+                customFrame.setVisible(false);
+                switch(command){
+                    case "Продать":
+                        controller.sellAmount(name, Integer.parseInt(amount));
+                        break;
+                    case "Добавить":
+                        controller.addAmount(name, Integer.parseInt(amount));
+                        break;
+                }
+            }
+        }catch (NumberFormatException ex){
+            ex.printStackTrace();
+            showNumberFormatWarning();
         }
     }
 
@@ -199,10 +223,6 @@ public class GUI {
 
     private void sellDefaultAmount(String drink) {
         controller.sellAmount(drink);
-    }
-
-    private void sellAmount(String drink, int amount){
-        controller.sellAmount(drink, amount);
     }
 
     private void add() {
@@ -216,6 +236,7 @@ public class GUI {
             amount.setText("");
             defaultAmount.setText("");
             addButton.setEnabled(false);
+            name.requestFocus();
         } else {
             inputFrame = new JFrame("Введите данные");
             JPanel panel = new JPanel();
@@ -251,6 +272,7 @@ public class GUI {
             inputFrame.getContentPane().add(panel);
             inputFrame.setLocationRelativeTo(mainFrame);
             inputFrame.setVisible(true);
+            name.requestFocus();
         }
     }
 
@@ -274,10 +296,6 @@ public class GUI {
         }
     }
 
-    private void clearText() {
-
-    }
-
     private void addData() {
         inputFrame.setVisible(false);
         try {
@@ -288,7 +306,7 @@ public class GUI {
     }
 
     private void showNumberFormatWarning() {
-        logArea.setText("DRINK NOT ADDED!\nOnly numbers permitted in amount fields");
+        logArea.setText("Позиция НЕ добавлена\nВводите корректный данные в поля количества");
     }
 
     public void updateAmount(String name, int amount) {
@@ -323,17 +341,17 @@ public class GUI {
             historyFrame.setVisible(true);
             updateHistory();
         }else {
-            historyFrame = new JFrame("History");
+            historyFrame = new JFrame("История операций");
             historyLog = new JTextArea();
             JScrollPane scrollPane = new JScrollPane(historyLog, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
             scrollPane.setPreferredSize(new Dimension(400, 300));
             Box buttonBox = new Box(BoxLayout.X_AXIS);
-            drinkOrderRadioButton = new JRadioButton("By drink");
+            drinkOrderRadioButton = new JRadioButton("По наименованию");
             drinkOrderRadioButton.setSelected(true);
-            JRadioButton chronoOrderRadioButton = new JRadioButton("By order");
-            JButton closeButton = new JButton("Exit");
+            JRadioButton chronoOrderRadioButton = new JRadioButton("По хронологии");
+            JButton closeButton = new JButton("Выход");
             closeButton.addActionListener(e -> historyFrame.setVisible(false));
-            JButton updateButton = new JButton("Update");
+            JButton updateButton = new JButton("Обновить");
             updateButton.addActionListener(e -> updateHistory());
             ButtonGroup historyOrder = new ButtonGroup();
             historyOrder.add(drinkOrderRadioButton);
@@ -381,15 +399,15 @@ public class GUI {
     }
 
     public void showLoadedInfo() {
-        logArea.setText("Data loaded!");
+        logArea.setText("Данные загружены");
     }
 
     public void showLoadError() {
-        logArea.setText("Loading error!");
+        logArea.setText("Ошибка загрузки данных");
     }
 
     public void showSaveError() {
-        logArea.setText("Save error!");
+        logArea.setText("Ошибка сохранения");
     }
 
     public void showLoadedDrinks(List<Drink> drinks) {
@@ -401,14 +419,14 @@ public class GUI {
     }
 
     public void showNewSaveFileInfo() {
-        logArea.setText("New save file created!");
+        logArea.setText("Создан новый файл сохранения");
     }
 
     public void showDuplicateWarning() {
-        logArea.setText("Drink already in the list!");
+        logArea.setText("Позиция уже в списке");
     }
 
     public void showAutoSaveInfo() {
-        logArea.setText("Autosave complete!");
+        logArea.setText("Автосохранение данных...");
     }
 }

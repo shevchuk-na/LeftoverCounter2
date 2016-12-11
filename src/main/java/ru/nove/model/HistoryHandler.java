@@ -21,7 +21,7 @@ public class HistoryHandler {
 
         switch(mode){
             case 1:
-                allDrinks.sort(getCompByAddedDate());
+                allDrinks.sort(getCompByName());
                 for(Drink drink: allDrinks){
                     for (int i = 0; i < drink.getAmountHistory().size(); i++) {
                         history.add(makeHistoryLine(drink, i));
@@ -54,17 +54,20 @@ public class HistoryHandler {
     }
 
     private String makeHistoryLine(Drink drink, int i) {
-        if(i == 0 || (drink.getAmountHistory().get(i) > drink.getAmountHistory().get(i-1))){
+        if(i == 0) {
             return DateUtil.formatTime(drink.getTsHistory().get(i)) + " - " + drink.getName() +
                     " +" + drink.getAmountHistory().get(i) + ": " + drink.getAmountHistory().get(i);
+        } else if(drink.getAmountHistory().get(i) > drink.getAmountHistory().get(i-1)){
+            return DateUtil.formatTime(drink.getTsHistory().get(i)) + " - " + drink.getName() +
+                    " +" + (drink.getAmountHistory().get(i) - drink.getAmountHistory().get(i - 1)) + ": " + drink.getAmountHistory().get(i);
         } else{
             return DateUtil.formatTime(drink.getTsHistory().get(i)) + " - " + drink.getName() +
                     " " + (drink.getAmountHistory().get(i) - drink.getAmountHistory().get(i - 1)) + ": " + drink.getAmountHistory().get(i);
         }
     }
 
-    private static Comparator<Drink> getCompByAddedDate(){
+    private static Comparator<Drink> getCompByName(){
         return (d1, d2) ->
-                d1.getAmountHistory().get(0).compareTo(d2.getAmountHistory().get(0));
+                d1.getName().compareTo(d2.getName());
     }
 }
