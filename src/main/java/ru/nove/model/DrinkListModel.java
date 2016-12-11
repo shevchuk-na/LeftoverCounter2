@@ -14,7 +14,6 @@ public class DrinkListModel {
     private List<Drink> salesThisSession;
     private ArchiveHandler archiveHandler;
     private HistoryHandler historyHandler;
-    private AutoSaveUtil autoSaver;
     private GUI gui;
     private SaveLoadUtil saveLoad;
     private final int OK = 1;
@@ -87,7 +86,7 @@ public class DrinkListModel {
             gui.removePosition(drink.getName());
             drinks.remove(drink);
         } else {
-            gui.updateAmount(drinks.get(index).getName(), drinks.get(index).getAmount());
+            gui.updateAmount(drink.getName(), drink.getAmount());
         }
     }
 
@@ -108,7 +107,13 @@ public class DrinkListModel {
         Drink drink = drinks.get(getDrinkIndex(name));
         drink.addAmount(amount);
         salesThisSession.add(drink);
-        gui.updateAmount(drink.getName(), drink.getAmount());
+        gui.enableCancelButton(true);
+        if(drink.getAmount() == 0){
+            gui.removePosition(drink.getName());
+            drinks.remove(drink);
+        } else {
+            gui.updateAmount(drink.getName(), drink.getAmount());
+        }
     }
 
     public void exit() {
@@ -170,6 +175,7 @@ public class DrinkListModel {
                         drinks.remove(lastDrink);
                     } else {
                         lastDrink.removeSale();
+                        gui.updateAmount(lastDrink.getName(), lastDrink.getAmount());
                     }
                 } else {
                     if(lastAmount == 0){

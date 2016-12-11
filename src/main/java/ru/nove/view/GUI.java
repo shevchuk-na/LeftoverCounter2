@@ -4,13 +4,11 @@ import ru.nove.controller.GraphicController;
 import ru.nove.model.entities.Drink;
 import ru.nove.model.searchable.DrinkSearchable;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class GUI {
@@ -20,8 +18,10 @@ public class GUI {
     private static final int ADD_AMOUNT = 7;
     private static final String CUSTOM_SALE = "customSale";
     private static final String CUSTOM_ADD = "customAdd";
+    private static final String ALPHABETICAL = "alphabetical";
+    private static final String CHRONOLOGICAL = "chronological";
     private GraphicController controller;
-    private JFrame mainFrame, historyFrame, inputFrame, customFrame;
+    private JFrame mainFrame, historyFrame, inputFrame, customFrame, filterFrame;
     private JTextField amount, defaultAmount, nameField, saleAmount;
     private AutocompleteJComboBox name;
     private List<Box> boxArray;
@@ -43,11 +43,13 @@ public class GUI {
         mainPanel.add(mainBox, BorderLayout.CENTER);
         JScrollPane scrollPane = new JScrollPane(mainPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane.setPreferredSize(new Dimension(575, 500));
+        scrollPane.setPreferredSize(new Dimension(585, 500));
 
         Box topButtonBox = new Box(BoxLayout.X_AXIS);
         JButton addButton = new JButton("Добавить позицию");
         addButton.addActionListener(e -> add());
+        JButton filterButton = new JButton("Вид");
+        filterButton.addActionListener(e -> filterView());
         JButton historyButton = new JButton("Просмотр истории");
         historyButton.addActionListener(e -> createHistoryWindow());
         cancelButton = new JButton("Отменить");
@@ -55,6 +57,8 @@ public class GUI {
         JButton exitButton = new JButton("Выход");
         exitButton.addActionListener(e -> exit());
         topButtonBox.add(addButton);
+        topButtonBox.add(Box.createRigidArea(new Dimension(10,0)));
+        topButtonBox.add(filterButton);
         topButtonBox.add(Box.createRigidArea(new Dimension(10,0)));
         topButtonBox.add(historyButton);
         topButtonBox.add(Box.createRigidArea(new Dimension(10,0)));
@@ -83,6 +87,64 @@ public class GUI {
         });
         mainFrame.setLocationRelativeTo(null);
         mainFrame.setVisible(true);
+    }
+
+    private void filterView() {
+        if(filterFrame == null) {
+            filterFrame = new JFrame("Вид");
+            JPanel filterPanel = new JPanel();
+            ButtonGroup viewGroup = new ButtonGroup();
+            JRadioButton alphabetView = new JRadioButton("По алфавиту");
+            alphabetView.setSelected(true);
+            JRadioButton chronoView = new JRadioButton("По дате добавления");
+            JButton applyViewButton = new JButton("Применить");
+            applyViewButton.addActionListener(e -> {
+                if(alphabetView.isSelected()){
+                    modifyView(ALPHABETICAL);
+                }else if(chronoView.isSelected()){
+//                    modifyView(CHRONOLOGICAL);
+                }
+            });
+            viewGroup.add(alphabetView);
+            viewGroup.add(chronoView);
+            filterPanel.add(alphabetView);
+            filterPanel.add(chronoView);
+            filterPanel.add(applyViewButton);
+            filterPanel.setPreferredSize(new Dimension(300, 100));
+
+            filterFrame.getContentPane().add(filterPanel);
+            filterFrame.pack();
+            filterFrame.setLocationRelativeTo(mainFrame);
+            filterFrame.setVisible(true);
+        } else {
+            filterFrame.setVisible(true);
+        }
+    }
+
+    private void modifyView(String order) {
+        mainBox.removeAll();
+        switch(order){
+            case ALPHABETICAL:
+                boxArray.sort(getSortByName());
+                break;
+            case CHRONOLOGICAL:
+//                boxArray.sort(getSortByDefault());
+                break;
+        }
+
+        for(Box row:boxArray){
+            mainBox.add(row);
+        }
+        filterFrame.setVisible(false);
+        updateFrame();
+    }
+
+//    private Comparator<Box> getSortByDefault() {
+//        return (d1, d2) -> d1.getComponent(SALE_BUTT
+//    }
+
+    private Comparator<Box> getSortByName() {
+        return (d1, d2) -> d1.getName().compareTo(d2.getName());
     }
 
     private void exit() {
@@ -324,6 +386,9 @@ public class GUI {
         }
         if(customFrame != null){
             customFrame.dispose();
+        }
+        if(filterFrame != null){
+            filterFrame.dispose();
         }
         mainFrame.dispose();
 
