@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ru.nove.model.entities.Drink.getCompByName;
+
 public class DrinkListModel {
     private List<Drink> drinks;
     private List<Drink> salesThisSession;
@@ -186,7 +188,9 @@ public class DrinkListModel {
     }
 
     public List<Drink> getRegistry() {
-        return archiveHandler.getArchive();
+        List<Drink> drinks = archiveHandler.getArchive();
+        drinks.sort(getCompByName());
+        return drinks;
     }
 
     public int checkRegistry(String name) {

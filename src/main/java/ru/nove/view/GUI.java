@@ -21,14 +21,15 @@ public class GUI {
     private static final String ALPHABETICAL = "alphabetical";
     private static final String AVAILABLE = "available";
     private GraphicController controller;
-    private JFrame mainFrame, historyFrame, inputFrame, customFrame, filterFrame;
-    private JTextField amount, defaultAmount, nameField, saleAmount;
+    private JFrame mainFrame, historyFrame, inputFrame, customFrame, filterFrame, archiveFrame;
+    private JTextField amount, defaultAmount, nameField, saleAmount, editName, editAmount;
     private AutocompleteJComboBox name;
     private List<Box> boxArray;
-    private Box mainBox;
+    private Box mainBox, listBox;
     private JTextArea historyLog, logArea;
     private JRadioButton drinkOrderRadioButton;
-    private JButton cancelButton, addButton, saleButton;
+    private JButton cancelButton, addButton, saleButton, editButton, okEditButton, deleteButton, cancelEditButton;
+    private ButtonGroup drinkGroup;
 
     public GUI(GraphicController controller) {
         this.controller = controller;
@@ -43,15 +44,17 @@ public class GUI {
         mainPanel.add(mainBox, BorderLayout.CENTER);
         JScrollPane scrollPane = new JScrollPane(mainPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane.setPreferredSize(new Dimension(585, 500));
+        scrollPane.setPreferredSize(new Dimension(600, 500));
 
         Box topButtonBox = new Box(BoxLayout.X_AXIS);
         JButton addButton = new JButton("Добавить позицию");
-        addButton.addActionListener(e -> add());
+        addButton.addActionListener(e -> createInputWindow());
         JButton filterButton = new JButton("Вид");
-        filterButton.addActionListener(e -> filterView());
-        JButton historyButton = new JButton("Просмотр истории");
+        filterButton.addActionListener(e -> createViewWindow());
+        JButton historyButton = new JButton("История операций");
         historyButton.addActionListener(e -> createHistoryWindow());
+        JButton archiveButton = new JButton("Реестр");
+        archiveButton.addActionListener(e -> createArchiveWindow());
         cancelButton = new JButton("Отменить");
         cancelButton.addActionListener(e -> cancelLast());
         JButton exitButton = new JButton("Выход");
@@ -61,6 +64,8 @@ public class GUI {
         topButtonBox.add(filterButton);
         topButtonBox.add(Box.createRigidArea(new Dimension(10,0)));
         topButtonBox.add(historyButton);
+        topButtonBox.add(Box.createRigidArea(new Dimension(10,0)));
+        topButtonBox.add(archiveButton);
         topButtonBox.add(Box.createRigidArea(new Dimension(10,0)));
         topButtonBox.add(cancelButton);
         topButtonBox.add(Box.createRigidArea(new Dimension(10,0)));
@@ -89,7 +94,7 @@ public class GUI {
         mainFrame.setVisible(true);
     }
 
-    private void filterView() {
+    private void createViewWindow() {
         if(filterFrame == null) {
             filterFrame = new JFrame("Вид");
             JPanel filterPanel = new JPanel();
@@ -213,7 +218,7 @@ public class GUI {
         rowBox.setName(drink.getName());
         boxArray.add(rowBox);
         mainBox.add(rowBox);
-        updateFrame();
+        modifyView(ALPHABETICAL);
     }
 
     private void createCustomWindow(String drink, String command) {
@@ -294,10 +299,6 @@ public class GUI {
         controller.sellAmount(drink);
     }
 
-    private void add() {
-        createInputWindow();
-    }
-
     private void createInputWindow(){
         if(inputFrame != null){
             inputFrame.setVisible(true);
@@ -311,10 +312,10 @@ public class GUI {
             JPanel panel = new JPanel();
             amount = new JTextField(6);
             amount.setMargin(new Insets(3,2,3,2));
-            JLabel defAmoLabel = new JLabel("Продажа по умолчанию:");
+            JLabel defAmoLabel = new JLabel("Размер порции по умолчанию");
             defaultAmount = new JTextField(5);
             defaultAmount.setMargin(new Insets(3,2,3,2));
-            name = new AutocompleteJComboBox(new DrinkSearchable(controller.getRegistry()));
+            name = new AutocompleteJComboBox(new DrinkSearchable(controller.getArchive()));
             name.addItemListener(e -> checkDefaultAmount());
             name.addItemListener(e -> checkEntry());
             amount.addKeyListener(new KeyAdapter() {
@@ -402,6 +403,9 @@ public class GUI {
         if(filterFrame != null){
             filterFrame.dispose();
         }
+        if(archiveFrame != null){
+            archiveFrame.dispose();
+        }
         mainFrame.dispose();
 
     }
@@ -446,6 +450,108 @@ public class GUI {
         }
     }
 
+    private void createArchiveWindow(){
+        Drink drinkEdited = null;
+        List<Drink> drinks = controller.getArchive();
+        if(archiveFrame == null) {
+            archiveFrame = new JFrame("Реестр напитков");
+            archiveFrame.setLayout(new BorderLayout());
+            listBox = new Box(BoxLayout.Y_AXIS);
+            JScrollPane scrollPane = new JScrollPane(listBox, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            JPanel editPanel = new JPanel(new GridBagLayout());
+            GridBagConstraints gbc = new GridBagConstraints();
+            editButton = new JButton("Изменить");
+            gbc.gridx = gbc.gridy = 0;
+            gbc.weightx = gbc.weighty = 0;
+            gbc.anchor = GridBagConstraints.FIRST_LINE_START;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            gbc.insets = new Insets(2,2,2,2);
+            editPanel.add(editButton, gbc);
+            deleteButton = new JButton("Удалить");
+            gbc.gridx = 1;
+            editPanel.add(deleteButton, gbc);
+            gbc.gridx = 0;
+            gbc.gridy = 1;
+            gbc.insets = new Insets(15,2,5,2);
+            editPanel.add(new JLabel("Название"), gbc);
+            editName = new JTextField();
+            gbc.gridy = 2;
+            gbc.gridwidth = 2;
+            gbc.insets = new Insets(2,2,2,2);
+            gbc.ipady = 5;
+            editPanel.add(editName, gbc);
+            gbc.gridy = 3;
+            gbc.gridwidth = 1;
+            gbc.ipady = 0;
+            editPanel.add(new JLabel("Размер порции"), gbc);
+            editAmount = new JTextField();
+            gbc.gridy = 4;
+            gbc.gridwidth = 2;
+            gbc.ipady = 5;
+            editPanel.add(editAmount, gbc);
+            okEditButton = new JButton("Сохранить");
+            gbc.gridy = 5;
+            gbc.gridwidth = 1;
+            gbc.ipady = 0;
+            gbc.weightx = gbc.weighty = 1;
+            gbc.anchor = GridBagConstraints.LAST_LINE_START;
+            editPanel.add(okEditButton, gbc);
+            cancelEditButton = new JButton("Отменить");
+            gbc.gridx = 1;
+            editPanel.add(cancelEditButton, gbc);
+            scrollPane.setPreferredSize(new Dimension(200, 400));
+            editPanel.setPreferredSize(new Dimension(200, 200));
+            drinkGroup = new ButtonGroup();
+            createDrinkList(drinks, listBox);
+            editButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                }
+            });
+            deleteButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                }
+            });
+            okEditButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                }
+            });
+
+            archiveFrame.getContentPane().add(scrollPane, BorderLayout.WEST);
+            archiveFrame.getContentPane().add(editPanel, BorderLayout.EAST);
+            archiveFrame.pack();
+            archiveFrame.setLocationRelativeTo(mainFrame);
+            archiveFrame.setVisible(true);
+        }else{
+            drinks = controller.getArchive();
+            drinkGroup.clearSelection();
+            editButton.setEnabled(false);
+            deleteButton.setEnabled(false);
+            okEditButton.setEnabled(false);
+            archiveFrame.setVisible(true);
+
+        }
+    }
+
+    private void createDrinkList(List<Drink> drinks, Box listBox){
+        for (Drink drink : drinks) {
+            JRadioButton item = new JRadioButton(drink.getName());
+            item.addActionListener(e -> {
+                if(item.isSelected()){
+                    editName.setText(drink.getName());
+                    editAmount.setText(String.valueOf(drink.getDefaultAmount()));
+                }
+            });
+            drinkGroup.add(item);
+            listBox.add(item);
+        }
+    }
+
     private void updateHistory() {
         if(drinkOrderRadioButton.isSelected()){
             controller.viewHistory(1);
@@ -459,7 +565,6 @@ public class GUI {
         for(String line:history){
             historyLog.append(line+"\n");
         }
-
     }
 
     private int getIndex(String name){

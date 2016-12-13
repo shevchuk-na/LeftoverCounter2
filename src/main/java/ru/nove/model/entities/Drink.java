@@ -5,6 +5,7 @@ import ru.nove.model.utils.DateUtil;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class Drink implements Serializable, Comparable<Drink>{
     private String name;
@@ -68,5 +69,10 @@ public class Drink implements Serializable, Comparable<Drink>{
     @Override
     public int compareTo(Drink o) {
         return this.getName().compareTo(o.getName());
+    }
+
+    public static Comparator<Drink> getCompByName(){
+        return (d1, d2) ->
+                d1.getName().compareTo(d2.getName());
     }
 }

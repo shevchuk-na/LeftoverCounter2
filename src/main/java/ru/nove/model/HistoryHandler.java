@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import static ru.nove.model.entities.Drink.getCompByName;
+
 class HistoryHandler {
     private ArchiveHandler archiveHandler;
 
@@ -72,10 +74,5 @@ class HistoryHandler {
         }
         historyLine += ": " + drink.getAmountHistory().get(i);
         return historyLine;
-    }
-
-    private static Comparator<Drink> getCompByName(){
-        return (d1, d2) ->
-                d1.getName().compareTo(d2.getName());
     }
 }
