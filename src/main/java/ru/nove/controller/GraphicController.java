@@ -68,4 +68,12 @@ public class GraphicController {
     public void addAmount(String drink, int amount) {
         model.addAmount(drink, amount);
     }
+
+    public void editArchiveItem(String name, int defaultAmount) {
+        model.editArchiveItem(name, defaultAmount);
+    }
+
+    public void deleteArchiveItem(String name) {
+        model.deleteArchiveItem(name);
+    }
 }

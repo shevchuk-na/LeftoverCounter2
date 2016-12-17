@@ -33,6 +33,14 @@ public class Drink implements Serializable, Comparable<Drink>{
         return amount;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDefaultAmount(int defaultAmount) {
+        this.defaultAmount = defaultAmount;
+    }
+
     public ArrayList<Integer> getAmountHistory() {
         return amountHistory;
     }

@@ -30,6 +30,8 @@ public class GUI {
     private JRadioButton drinkOrderRadioButton;
     private JButton cancelButton, addButton, saleButton, editButton, okEditButton, deleteButton, cancelEditButton;
     private ButtonGroup drinkGroup;
+    private boolean editMode, deleteMode;
+
 
     public GUI(GraphicController controller) {
         this.controller = controller;
@@ -480,6 +482,7 @@ public class GUI {
             gbc.insets = new Insets(2,2,2,2);
             gbc.ipady = 5;
             editPanel.add(editName, gbc);
+            editName.setEditable(false);
             gbc.gridy = 3;
             gbc.gridwidth = 1;
             gbc.ipady = 0;
@@ -489,6 +492,7 @@ public class GUI {
             gbc.gridwidth = 2;
             gbc.ipady = 5;
             editPanel.add(editAmount, gbc);
+            editAmount.setEditable(false);
             okEditButton = new JButton("Сохранить");
             gbc.gridy = 5;
             gbc.gridwidth = 1;
@@ -496,29 +500,53 @@ public class GUI {
             gbc.weightx = gbc.weighty = 1;
             gbc.anchor = GridBagConstraints.LAST_LINE_START;
             editPanel.add(okEditButton, gbc);
+            okEditButton.setEnabled(false);
             cancelEditButton = new JButton("Отменить");
             gbc.gridx = 1;
             editPanel.add(cancelEditButton, gbc);
+            cancelEditButton.setEnabled(false);
             scrollPane.setPreferredSize(new Dimension(200, 400));
             editPanel.setPreferredSize(new Dimension(200, 200));
             drinkGroup = new ButtonGroup();
             createDrinkList(drinks, listBox);
-            editButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-
-                }
+            editButton.addActionListener(e -> {
+                editMode = true;
+                editName.setEditable(true);
+                editAmount.setEditable(true);
+                okEditButton.setEnabled(true);
+                cancelEditButton.setEnabled(true);
             });
-            deleteButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-
-                }
+            deleteButton.addActionListener(e -> {
+                deleteMode = true;
+                editName.setBackground(Color.RED);
+                editAmount.setBackground(Color.RED);
+                okEditButton.setEnabled(true);
+                cancelEditButton.setEnabled(true);
             });
-            okEditButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-
+            okEditButton.addActionListener(e -> {
+                if(editMode){
+                    try {
+                        controller.editArchiveItem(editName.getText(), Integer.parseInt(editAmount.getText()));
+                    } catch (NumberFormatException ex){
+                        editAmount.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.RED), BorderFactory.createEmptyBorder(3,2,3,2)));
+                    }
+                }else if(deleteMode){
+                    controller.deleteArchiveItem(editName.getText());
+                }
+               createArchiveWindow();
+            });
+            cancelEditButton.addActionListener(e -> {
+                if(editMode){
+                    editName.setEditable(false);
+                    editAmount.setEditable(false);
+                    okEditButton.setEnabled(false);
+                    cancelEditButton.setEnabled(false);
+                    editMode = false;
+                } else if(deleteMode){
+                    editName.setBackground(Color.WHITE);
+                    editAmount.setBackground(Color.WHITE);
+                    okEditButton.setEnabled(false);
+                    cancelEditButton.setEnabled(false);
                 }
             });
 
@@ -622,5 +650,9 @@ public class GUI {
 
     public void showAddInfo(Drink drink, int amount) {
         logArea.setText("Добавил " + amount + "мл " + drink.getName() + ". Осталось " + drink.getAmount());
+    }
+
+    public void showNotEmptyWarning() {
+        logArea.setText("Нельзя удалить позицию с ненулевым остатком!");
     }
 }

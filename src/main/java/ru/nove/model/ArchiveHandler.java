@@ -27,4 +27,21 @@ public class ArchiveHandler {
     void setArchive(List<Drink> archive) {
         this.archive = archive;
     }
+
+    void editName(Drink drink, String name){
+        drink.setName(name);
+    }
+
+    void editDefaultAmount(Drink drink, int defaultAmount){
+        drink.setDefaultAmount(defaultAmount);
+    }
+
+    Drink getDrink(String name){
+        for(Drink drink:archive){
+            if(drink.getName().equals(name)){
+                return drink;
+            }
+        }
+        return null;
+    }
 }

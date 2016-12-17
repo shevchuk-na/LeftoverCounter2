@@ -201,5 +201,20 @@ public class DrinkListModel {
         }
         return 0;
     }
+
+    public void editArchiveItem(String name, int defaultAmount) {
+        Drink drinkEdited = archiveHandler.getDrink(name);
+        archiveHandler.editName(drinkEdited, name);
+        archiveHandler.editDefaultAmount(drinkEdited, defaultAmount);
+    }
+
+    public void deleteArchiveItem(String name) {
+        Drink drinkDeleted = archiveHandler.getDrink(name);
+        if(drinkDeleted.getAmount() == 0){
+            archiveHandler.removeFromArchive(drinkDeleted);
+        }else{
+            gui.showNotEmptyWarning();
+        }
+    }
 }
 
