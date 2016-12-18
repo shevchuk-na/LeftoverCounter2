@@ -2,7 +2,6 @@ package ru.nove.view;
 
 import ru.nove.controller.GraphicController;
 import ru.nove.model.entities.Drink;
-import ru.nove.model.searchable.DrinkSearchable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,17 +20,17 @@ public class GUI {
     private static final String ALPHABETICAL = "alphabetical";
     private static final String AVAILABLE = "available";
     private GraphicController controller;
-    private JFrame mainFrame, historyFrame, inputFrame, customFrame, filterFrame, archiveFrame;
-    private JTextField amount, defaultAmount, nameField, saleAmount, editName, editAmount;
-    private AutocompleteJComboBox name;
+    private InputWindow inputWindow;
+    private SortViewWindow sortViewWindow;
+    private HistoryWindow historyWindow;
+    private SellAddWindow sellAddWindow;
+    private ArchiveWindow archiveWindow;
+    
+    private JFrame mainFrame;
     private List<Box> boxArray;
-    private Box mainBox, listBox;
-    private JTextArea historyLog, logArea;
-    private JRadioButton drinkOrderRadioButton;
-    private JButton cancelButton, addButton, saleButton, editButton, okEditButton, deleteButton, cancelEditButton;
-    private ButtonGroup drinkGroup;
-    private boolean editMode, deleteMode;
-
+    private Box mainBox;
+    private JTextArea logArea;
+    private JButton cancelButton;
 
     public GUI(GraphicController controller) {
         this.controller = controller;
@@ -96,39 +95,51 @@ public class GUI {
         mainFrame.setVisible(true);
     }
 
-    private void createViewWindow() {
-        if(filterFrame == null) {
-            filterFrame = new JFrame("Вид");
-            JPanel filterPanel = new JPanel();
-            ButtonGroup viewGroup = new ButtonGroup();
-            JRadioButton alphabetView = new JRadioButton("По алфавиту");
-            alphabetView.setSelected(true);
-            JRadioButton chronoView = new JRadioButton("По количеству");
-            JButton applyViewButton = new JButton("Применить");
-            applyViewButton.addActionListener(e -> {
-                if(alphabetView.isSelected()){
-                    modifyView(ALPHABETICAL);
-                }else if(chronoView.isSelected()){
-                    modifyView(AVAILABLE);
-                }
-            });
-            viewGroup.add(alphabetView);
-            viewGroup.add(chronoView);
-            filterPanel.add(alphabetView);
-            filterPanel.add(chronoView);
-            filterPanel.add(applyViewButton);
-            filterPanel.setPreferredSize(new Dimension(300, 70));
+    GraphicController getController(){
+        return controller;
+    }
 
-            filterFrame.getContentPane().add(filterPanel);
-            filterFrame.pack();
-            filterFrame.setLocationRelativeTo(mainFrame);
-            filterFrame.setVisible(true);
-        } else {
-            filterFrame.setVisible(true);
+    private void createInputWindow() {
+        if(inputWindow == null){
+            inputWindow = new InputWindow(this);
+        } else{
+            inputWindow.showInputWindow();
         }
     }
 
-    private void modifyView(String order) {
+    private void createViewWindow() {
+        if(sortViewWindow == null) {
+            sortViewWindow = new SortViewWindow(this);
+        } else {
+            sortViewWindow.showSortViewWindow();
+        }
+    }
+
+    private void createHistoryWindow(){
+        if(historyWindow == null) {
+            historyWindow = new HistoryWindow(this);
+        } else {
+            historyWindow.showHistoryWindow();
+        }
+    }
+
+    private void createSellAddWindow(String drink, String command){
+        if(sellAddWindow == null){
+            sellAddWindow = new SellAddWindow(this, drink, command);
+        } else {
+            sellAddWindow.showSellAddWindow(drink, command);
+        }
+    }
+
+    private void createArchiveWindow(){
+        if(archiveWindow == null){
+            archiveWindow = new ArchiveWindow(this);
+        }else{
+            archiveWindow.showArchiveWindow();
+        }
+    }
+
+    void modifyView(String order) {
         mainBox.removeAll();
         switch(order){
             case ALPHABETICAL:
@@ -140,9 +151,6 @@ public class GUI {
         }
         for(Box row:boxArray){
             mainBox.add(row);
-        }
-        if(filterFrame != null && filterFrame.isVisible()) {
-            filterFrame.setVisible(false);
         }
         updateFrame();
     }
@@ -160,7 +168,7 @@ public class GUI {
     private Comparator<Box> getSortBoxByName() {
         return (d1, d2) -> d1.getName().compareTo(d2.getName());
     }
-
+    
     private void exit() {
         controller.exit();
     }
@@ -191,7 +199,7 @@ public class GUI {
         customSaleButton.addActionListener(e -> {
             for(Box sourcebox:boxArray){
                 if(e.getSource() == sourcebox.getComponent(CUSTOM_SALE_BUTTON)){
-                    createCustomWindow(sourcebox.getName(), CUSTOM_SALE);
+                    createSellAddWindow(sourcebox.getName(), CUSTOM_SALE);
                     break;
                 }
             }
@@ -202,7 +210,7 @@ public class GUI {
         addAmountButton.addActionListener(e -> {
             for(Box sourcebox:boxArray){
                 if(e.getSource() == sourcebox.getComponent(ADD_AMOUNT)){
-                    createCustomWindow(sourcebox.getName(), CUSTOM_ADD);
+                    createSellAddWindow(sourcebox.getName(), CUSTOM_ADD);
                     break;
                 }
             }
@@ -223,75 +231,6 @@ public class GUI {
         modifyView(ALPHABETICAL);
     }
 
-    private void createCustomWindow(String drink, String command) {
-        if(customFrame == null){
-            customFrame = new JFrame();
-            saleButton = new JButton();
-            switch (command){
-                case CUSTOM_SALE:
-                    customFrame.setTitle("Продать количество");
-                    saleButton.setText("Продать");
-                    break;
-                case CUSTOM_ADD:
-                    customFrame.setTitle("Добавить количество");
-                    saleButton.setText("Добавить");
-                    break;
-            }
-            JPanel salePanel = new JPanel();
-            nameField = new JTextField(drink, 15);
-            nameField.setEditable(false);
-            nameField.setMargin(new Insets(3,2,3,2));
-            saleAmount = new JTextField(5);
-            saleAmount.setMargin(new Insets(3,2,3,2));
-            saleButton.addActionListener(e -> performCustomAction(nameField.getText(), saleAmount.getText(), saleButton.getText()));
-            salePanel.add(nameField);
-            salePanel.add(saleAmount);
-            salePanel.add(saleButton);
-            customFrame.getContentPane().add(salePanel);
-            customFrame.setSize(new Dimension(360, 80));
-            customFrame.setLocationRelativeTo(mainFrame);
-            customFrame.setVisible(true);
-            saleAmount.requestFocus();
-        } else {
-            switch (command){
-                case CUSTOM_SALE:
-                    customFrame.setTitle("Продать количество");
-                    saleButton.setText("Продать");
-                    break;
-                case CUSTOM_ADD:
-                    customFrame.setTitle("Добавить количество");
-                    saleButton.setText("Добавить");
-                    break;
-            }
-            nameField.setText(drink);
-            saleAmount.setText("");
-            saleAmount.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.GRAY), BorderFactory.createEmptyBorder(3,2,3,2)));
-            customFrame.setVisible(true);
-            saleAmount.requestFocus();
-        }
-    }
-
-    private void performCustomAction(String name, String amount, String command){
-        try {
-            if(amount.equals("")){
-                saleAmount.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.RED), BorderFactory.createEmptyBorder(3,2,3,2)));
-            } else {
-                customFrame.setVisible(false);
-                switch(command){
-                    case "Продать":
-                        controller.sellAmount(name, Integer.parseInt(amount));
-                        break;
-                    case "Добавить":
-                        controller.addAmount(name, Integer.parseInt(amount));
-                        break;
-                }
-            }
-        }catch (NumberFormatException ex){
-            ex.printStackTrace();
-            showNumberFormatWarning();
-        }
-    }
-
     private void updateFrame() {
         mainFrame.revalidate();
         mainFrame.repaint();
@@ -301,112 +240,42 @@ public class GUI {
         controller.sellAmount(drink);
     }
 
-    private void createInputWindow(){
-        if(inputFrame != null){
-            inputFrame.setVisible(true);
-            name.setSelectedItem(null);
-            amount.setText("");
-            defaultAmount.setText("");
-            addButton.setEnabled(false);
-            name.requestFocus();
-        } else {
-            inputFrame = new JFrame("Введите данные");
-            JPanel panel = new JPanel();
-            amount = new JTextField(6);
-            amount.setMargin(new Insets(3,2,3,2));
-            JLabel defAmoLabel = new JLabel("Размер порции по умолчанию");
-            defaultAmount = new JTextField(5);
-            defaultAmount.setMargin(new Insets(3,2,3,2));
-            name = new AutocompleteJComboBox(new DrinkSearchable(controller.getArchive()));
-            name.addItemListener(e -> checkDefaultAmount());
-            name.addItemListener(e -> checkEntry());
-            amount.addKeyListener(new KeyAdapter() {
-                @Override
-                public void keyReleased(KeyEvent e) {
-                    checkEntry();
-                }
-            });
-            defaultAmount.addKeyListener(new KeyAdapter() {
-                @Override
-                public void keyReleased(KeyEvent e) {
-                    checkEntry();
-                }
-            });
-            addButton = new JButton("Добавить");
-            addButton.setEnabled(false);
-            addButton.addActionListener( (e) -> addData());
-            panel.add(name);
-            panel.add(amount);
-            panel.add(defAmoLabel);
-            panel.add(defaultAmount);
-            panel.add(addButton);
-            inputFrame.setSize(320, 145);
-            inputFrame.getContentPane().add(panel);
-            inputFrame.setLocationRelativeTo(mainFrame);
-            inputFrame.setVisible(true);
-            name.requestFocus();
-        }
-    }
-
-    private void checkEntry(){
-        if(name.getSelectedItem() != null) {
-            if (!name.getSelectedItem().toString().equals("") && !amount.getText().equals("") && !defaultAmount.getText().equals("")) {
-                addButton.setEnabled(true);
-                return;
-            }
-        }
-        addButton.setEnabled(false);
-    }
-
-    private void checkDefaultAmount() {
-        if(name.getSelectedItem() != null) {
-            String drink = name.getSelectedItem().toString();
-            int defAmount = controller.checkRegistry(drink);
-            if (defAmount != 0) {
-                defaultAmount.setText(String.valueOf(defAmount));
-            }
-        }
-    }
-
-    public void showLoadedDrinks(List<Drink> drinks) {
+    public void showDrinks(List<Drink> drinks) {
+        mainBox.removeAll();
+        boxArray = new ArrayList<>();
         drinks.sort(getSortDrinkByName());
         drinks.forEach(this::addPosition);
+        updateFrame();
     }
 
     private Comparator<Drink> getSortDrinkByName() {
         return (d1, d2) -> d1.getName().compareTo(d2.getName());
     }
 
-    private void addData() {
-        inputFrame.setVisible(false);
-        try {
-            controller.addDrink(((String) name.getSelectedItem()), Integer.parseInt(amount.getText()), Integer.parseInt(defaultAmount.getText()));
-        }catch (NumberFormatException e){
-            showNumberFormatWarning();
-        }
-    }
-
-    public void updateAmount(String name, int amount) {
-        int index = getIndex(name);
-        JTextField field = (JTextField) boxArray.get(index).getComponent(AMOUNT);
-        field.setText(String.valueOf(amount));
+    public void updatePosition(Drink drink) {
+        int index = getIndex(drink.getName());
+        JTextField amount = (JTextField) boxArray.get(index).getComponent(AMOUNT);
+        amount.setText(String.valueOf(drink.getAmount()));
+        JButton saleButton = (JButton) boxArray.get(index).getComponent(SALE_BUTTON);
+        saleButton.setText("Продать " + drink.getDefaultAmount());
+        updateFrame();
     }
 
     public void closeAllFrames() {
-        if(historyFrame != null) {
-            historyFrame.dispose();
+        if(historyWindow != null) {
+            historyWindow.close();
         }
-        if(inputFrame != null) {
-            inputFrame.dispose();
+        if(inputWindow != null) {
+            inputWindow.close();
         }
-        if(customFrame != null){
-            customFrame.dispose();
+        if(sellAddWindow != null){
+            sellAddWindow.close();
         }
-        if(filterFrame != null){
-            filterFrame.dispose();
+        if(sortViewWindow != null){
+            sortViewWindow.close();
         }
-        if(archiveFrame != null){
-            archiveFrame.dispose();
+        if(archiveWindow != null){
+            archiveWindow.close();
         }
         mainFrame.dispose();
 
@@ -419,180 +288,8 @@ public class GUI {
         updateFrame();
     }
 
-    private void createHistoryWindow(){
-        if(historyFrame != null){
-            historyFrame.setVisible(true);
-            updateHistory();
-        }else {
-            historyFrame = new JFrame("История операций");
-            historyLog = new JTextArea();
-            JScrollPane scrollPane = new JScrollPane(historyLog, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-            scrollPane.setPreferredSize(new Dimension(400, 300));
-            Box buttonBox = new Box(BoxLayout.X_AXIS);
-            drinkOrderRadioButton = new JRadioButton("По наименованию");
-            drinkOrderRadioButton.setSelected(true);
-            JRadioButton chronoOrderRadioButton = new JRadioButton("По хронологии");
-            JButton closeButton = new JButton("Выход");
-            closeButton.addActionListener(e -> historyFrame.setVisible(false));
-            JButton updateButton = new JButton("Обновить");
-            updateButton.addActionListener(e -> updateHistory());
-            ButtonGroup historyOrder = new ButtonGroup();
-            historyOrder.add(drinkOrderRadioButton);
-            historyOrder.add(chronoOrderRadioButton);
-            buttonBox.add(updateButton);
-            buttonBox.add(drinkOrderRadioButton);
-            buttonBox.add(chronoOrderRadioButton);
-            buttonBox.add(closeButton);
-            historyFrame.add(scrollPane, BorderLayout.CENTER);
-            historyFrame.add(buttonBox, BorderLayout.SOUTH);
-            historyFrame.pack();
-            historyFrame.setLocationRelativeTo(mainFrame);
-            historyFrame.setVisible(true);
-            controller.viewHistory(1);
-        }
-    }
-
-    private void createArchiveWindow(){
-        Drink drinkEdited = null;
-        List<Drink> drinks = controller.getArchive();
-        if(archiveFrame == null) {
-            archiveFrame = new JFrame("Реестр напитков");
-            archiveFrame.setLayout(new BorderLayout());
-            listBox = new Box(BoxLayout.Y_AXIS);
-            JScrollPane scrollPane = new JScrollPane(listBox, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-            JPanel editPanel = new JPanel(new GridBagLayout());
-            GridBagConstraints gbc = new GridBagConstraints();
-            editButton = new JButton("Изменить");
-            gbc.gridx = gbc.gridy = 0;
-            gbc.weightx = gbc.weighty = 0;
-            gbc.anchor = GridBagConstraints.FIRST_LINE_START;
-            gbc.fill = GridBagConstraints.HORIZONTAL;
-            gbc.insets = new Insets(2,2,2,2);
-            editPanel.add(editButton, gbc);
-            deleteButton = new JButton("Удалить");
-            gbc.gridx = 1;
-            editPanel.add(deleteButton, gbc);
-            gbc.gridx = 0;
-            gbc.gridy = 1;
-            gbc.insets = new Insets(15,2,5,2);
-            editPanel.add(new JLabel("Название"), gbc);
-            editName = new JTextField();
-            gbc.gridy = 2;
-            gbc.gridwidth = 2;
-            gbc.insets = new Insets(2,2,2,2);
-            gbc.ipady = 5;
-            editPanel.add(editName, gbc);
-            editName.setEditable(false);
-            gbc.gridy = 3;
-            gbc.gridwidth = 1;
-            gbc.ipady = 0;
-            editPanel.add(new JLabel("Размер порции"), gbc);
-            editAmount = new JTextField();
-            gbc.gridy = 4;
-            gbc.gridwidth = 2;
-            gbc.ipady = 5;
-            editPanel.add(editAmount, gbc);
-            editAmount.setEditable(false);
-            okEditButton = new JButton("Сохранить");
-            gbc.gridy = 5;
-            gbc.gridwidth = 1;
-            gbc.ipady = 0;
-            gbc.weightx = gbc.weighty = 1;
-            gbc.anchor = GridBagConstraints.LAST_LINE_START;
-            editPanel.add(okEditButton, gbc);
-            okEditButton.setEnabled(false);
-            cancelEditButton = new JButton("Отменить");
-            gbc.gridx = 1;
-            editPanel.add(cancelEditButton, gbc);
-            cancelEditButton.setEnabled(false);
-            scrollPane.setPreferredSize(new Dimension(200, 400));
-            editPanel.setPreferredSize(new Dimension(200, 200));
-            drinkGroup = new ButtonGroup();
-            createDrinkList(drinks, listBox);
-            editButton.addActionListener(e -> {
-                editMode = true;
-                editName.setEditable(true);
-                editAmount.setEditable(true);
-                okEditButton.setEnabled(true);
-                cancelEditButton.setEnabled(true);
-            });
-            deleteButton.addActionListener(e -> {
-                deleteMode = true;
-                editName.setBackground(Color.RED);
-                editAmount.setBackground(Color.RED);
-                okEditButton.setEnabled(true);
-                cancelEditButton.setEnabled(true);
-            });
-            okEditButton.addActionListener(e -> {
-                if(editMode){
-                    try {
-                        controller.editArchiveItem(editName.getText(), Integer.parseInt(editAmount.getText()));
-                    } catch (NumberFormatException ex){
-                        editAmount.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.RED), BorderFactory.createEmptyBorder(3,2,3,2)));
-                    }
-                }else if(deleteMode){
-                    controller.deleteArchiveItem(editName.getText());
-                }
-               createArchiveWindow();
-            });
-            cancelEditButton.addActionListener(e -> {
-                if(editMode){
-                    editName.setEditable(false);
-                    editAmount.setEditable(false);
-                    okEditButton.setEnabled(false);
-                    cancelEditButton.setEnabled(false);
-                    editMode = false;
-                } else if(deleteMode){
-                    editName.setBackground(Color.WHITE);
-                    editAmount.setBackground(Color.WHITE);
-                    okEditButton.setEnabled(false);
-                    cancelEditButton.setEnabled(false);
-                }
-            });
-
-            archiveFrame.getContentPane().add(scrollPane, BorderLayout.WEST);
-            archiveFrame.getContentPane().add(editPanel, BorderLayout.EAST);
-            archiveFrame.pack();
-            archiveFrame.setLocationRelativeTo(mainFrame);
-            archiveFrame.setVisible(true);
-        }else{
-            drinks = controller.getArchive();
-            drinkGroup.clearSelection();
-            editButton.setEnabled(false);
-            deleteButton.setEnabled(false);
-            okEditButton.setEnabled(false);
-            archiveFrame.setVisible(true);
-
-        }
-    }
-
-    private void createDrinkList(List<Drink> drinks, Box listBox){
-        for (Drink drink : drinks) {
-            JRadioButton item = new JRadioButton(drink.getName());
-            item.addActionListener(e -> {
-                if(item.isSelected()){
-                    editName.setText(drink.getName());
-                    editAmount.setText(String.valueOf(drink.getDefaultAmount()));
-                }
-            });
-            drinkGroup.add(item);
-            listBox.add(item);
-        }
-    }
-
-    private void updateHistory() {
-        if(drinkOrderRadioButton.isSelected()){
-            controller.viewHistory(1);
-        }else{
-            controller.viewHistory(2);
-        }
-    }
-
     public void displayHistory(List<String> history) {
-        historyLog.setText("");
-        for(String line:history){
-            historyLog.append(line+"\n");
-        }
+        historyWindow.displayHistory(history);
     }
 
     private int getIndex(String name){
@@ -602,6 +299,10 @@ public class GUI {
             }
         }
         return -1;
+    }
+
+    JFrame getMainFrame() {
+        return mainFrame;
     }
 
     private void cancelLast(){
@@ -636,7 +337,7 @@ public class GUI {
         logArea.setText("Автосохранение данных...");
     }
 
-    private void showNumberFormatWarning() {
+    void showNumberFormatWarning() {
         logArea.setText("Позиция НЕ добавлена\nВводите корректный данные в поля количества");
     }
 

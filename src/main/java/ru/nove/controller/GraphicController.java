@@ -1,6 +1,5 @@
 package ru.nove.controller;
 
-import ru.nove.model.ArchiveHandler;
 import ru.nove.model.DrinkListModel;
 import ru.nove.model.entities.Drink;
 import ru.nove.view.GUI;
@@ -58,7 +57,7 @@ public class GraphicController {
 
 
     public List<Drink> getArchive() {
-        return model.getRegistry();
+        return model.getArchive();
     }
 
     public int checkRegistry(String drink) {
@@ -69,11 +68,15 @@ public class GraphicController {
         model.addAmount(drink, amount);
     }
 
-    public void editArchiveItem(String name, int defaultAmount) {
-        model.editArchiveItem(name, defaultAmount);
+    public void editArchiveItem(Drink drink, String name, int defaultAmount) {
+        model.editArchiveItem(drink, name, defaultAmount);
     }
 
-    public void deleteArchiveItem(String name) {
-        model.deleteArchiveItem(name);
+    public void makeItemObsolete(Drink drink) {
+        model.makeItemObsolete(drink);
+    }
+
+    public List<Drink> getActualArchive() {
+        return model.getActualArchive();
     }
 }

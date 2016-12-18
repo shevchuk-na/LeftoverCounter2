@@ -13,6 +13,7 @@ public class Drink implements Serializable, Comparable<Drink>{
     private int defaultAmount;
     private ArrayList<Integer> amountHistory;
     private ArrayList<Long> tsHistory;
+    private boolean obsolete;
     private static final long serialVersionUID = -3573495L;
 
     public Drink(String name, int amount, int defaultAmount){
@@ -23,6 +24,7 @@ public class Drink implements Serializable, Comparable<Drink>{
         amountHistory.add(amount);
         tsHistory = new ArrayList<>();
         tsHistory.add(DateUtil.now());
+        obsolete = false;
     }
 
     public String getName() {
@@ -51,6 +53,14 @@ public class Drink implements Serializable, Comparable<Drink>{
 
     public int getDefaultAmount() {
         return defaultAmount;
+    }
+
+    public boolean isObsolete() {
+        return obsolete;
+    }
+
+    public void setObsolete(boolean obsolete) {
+        this.obsolete = obsolete;
     }
 
     public void addAmount(int add){

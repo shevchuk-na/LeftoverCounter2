@@ -24,6 +24,16 @@ public class ArchiveHandler {
         return archive;
     }
 
+    List<Drink> getActualArchive(){
+        List<Drink> actualArchive = new ArrayList<>();
+        for(Drink drink:archive){
+            if(!drink.isObsolete()){
+                actualArchive.add(drink);
+            }
+        }
+        return actualArchive;
+    }
+
     void setArchive(List<Drink> archive) {
         this.archive = archive;
     }

@@ -72,7 +72,7 @@ public class DrinkListModel {
             gui.removePosition(drink.getName());
             drinks.remove(drink);
         } else {
-            gui.updateAmount(drink.getName(), drink.getAmount());
+            gui.updatePosition(drink);
         }
     }
 
@@ -99,7 +99,7 @@ public class DrinkListModel {
             gui.removePosition(drink.getName());
             drinks.remove(drink);
         } else {
-            gui.updateAmount(drink.getName(), drink.getAmount());
+            gui.updatePosition(drink);
         }
     }
 
@@ -122,7 +122,7 @@ public class DrinkListModel {
                         drinks.add(drink);
                     }
                 }
-                gui.showLoadedDrinks(drinks);
+                gui.showDrinks(drinks);
                 gui.showLoadedInfo();
             } else {
                 gui.showNewSaveFileInfo();
@@ -162,7 +162,7 @@ public class DrinkListModel {
                         drinks.remove(lastDrink);
                     } else {                                                //просто добавление
                         lastDrink.removeSale();
-                        gui.updateAmount(lastDrink.getName(), lastDrink.getAmount());
+                        gui.updatePosition(lastDrink);
                     }
                 } else {                                                    //убрали
                     if(lastAmount == 0){                                    //убрали последнее
@@ -171,7 +171,7 @@ public class DrinkListModel {
                         gui.addPosition(lastDrink);
                     } else {                                                //просто убрали
                         lastDrink.removeSale();
-                        gui.updateAmount(lastDrink.getName(), lastDrink.getAmount());
+                        gui.updatePosition(lastDrink);
                     }
                 }
             }
@@ -187,8 +187,14 @@ public class DrinkListModel {
         gui.enableCancelButton(false);
     }
 
-    public List<Drink> getRegistry() {
+    public List<Drink> getArchive() {
         List<Drink> drinks = archiveHandler.getArchive();
+        drinks.sort(getCompByName());
+        return drinks;
+    }
+
+    public List<Drink> getActualArchive() {
+        List<Drink> drinks = archiveHandler.getActualArchive();
         drinks.sort(getCompByName());
         return drinks;
     }
@@ -202,19 +208,20 @@ public class DrinkListModel {
         return 0;
     }
 
-    public void editArchiveItem(String name, int defaultAmount) {
-        Drink drinkEdited = archiveHandler.getDrink(name);
-        archiveHandler.editName(drinkEdited, name);
-        archiveHandler.editDefaultAmount(drinkEdited, defaultAmount);
+    public void editArchiveItem(Drink drink, String name, int defaultAmount) {
+        archiveHandler.editName(drink, name);
+        archiveHandler.editDefaultAmount(drink, defaultAmount);
+        gui.showDrinks(drinks);
     }
 
-    public void deleteArchiveItem(String name) {
-        Drink drinkDeleted = archiveHandler.getDrink(name);
-        if(drinkDeleted.getAmount() == 0){
-            archiveHandler.removeFromArchive(drinkDeleted);
+    public void makeItemObsolete(Drink drink) {
+        if(drink.getAmount() == 0){
+            drink.setObsolete(true);
         }else{
             gui.showNotEmptyWarning();
         }
     }
+
+
 }
 
