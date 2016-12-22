@@ -26,6 +26,7 @@ class SortViewWindow {
             }else if(chronoView.isSelected()){
                 gui.modifyView(AVAILABLE);
             }
+            sortViewFrame.setVisible(false);
         });
         viewGroup.add(alphabetView);
         viewGroup.add(chronoView);
