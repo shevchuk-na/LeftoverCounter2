@@ -18,8 +18,8 @@ class HistoryWindow {
         scrollPane.setPreferredSize(new Dimension(400, 300));
         Box buttonBox = new Box(BoxLayout.X_AXIS);
         drinkOrderRadioButton = new JRadioButton("По наименованию");
-        drinkOrderRadioButton.setSelected(true);
         JRadioButton chronoOrderRadioButton = new JRadioButton("По хронологии");
+        chronoOrderRadioButton.setSelected(true);
         JButton closeButton = new JButton("Выход");
         closeButton.addActionListener(e -> historyFrame.setVisible(false));
         JButton updateButton = new JButton("Обновить");
@@ -36,7 +36,6 @@ class HistoryWindow {
         historyFrame.pack();
         historyFrame.setLocationRelativeTo(gui.getMainFrame());
         historyFrame.setVisible(true);
-        gui.getController().viewHistory(1);
     }
 
     void showHistoryWindow(){
@@ -48,9 +47,9 @@ class HistoryWindow {
 
     private void updateHistory() {
         if(drinkOrderRadioButton.isSelected()){
-            gui.getController().viewHistory(1);
+            gui.getController().viewHistory(HistoryModes.alphabetical);
         }else{
-            gui.getController().viewHistory(2);
+            gui.getController().viewHistory(HistoryModes.chronological);
         }
     }
 

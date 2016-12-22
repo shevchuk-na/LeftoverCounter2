@@ -13,11 +13,11 @@ import java.awt.event.FocusListener;
 import java.util.*;
 import java.util.List;
 
-public class AutocompleteJComboBox extends JComboBox{
+class AutocompleteJComboBox extends JComboBox{
 
     private final Searchable<Drink, String> searchable;
 
-    public AutocompleteJComboBox(Searchable<Drink, String> s){
+    AutocompleteJComboBox(Searchable<Drink, String> s){
         super();
         setPreferredSize(new Dimension(200,25));
         this.searchable = s;
@@ -39,32 +39,31 @@ public class AutocompleteJComboBox extends JComboBox{
                 public void changedUpdate(DocumentEvent e) {
                 }
 
-                public void update(){
-                    SwingUtilities.invokeLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            List<Drink> founds = new ArrayList<>(searchable.search(tc.getText().toLowerCase()));
-                            Set<String> foundSet = new HashSet<>();
-                            for(Drink s: founds){
-                                foundSet.add(s.getName().toLowerCase());
-                            }
-                            Collections.sort(founds);
-
-                            setEditable(false);
-                            removeAllItems();
-
-                            if(!foundSet.contains(tc.getText().toLowerCase())){
-                                addItem(tc.getText());
-                            }
-
-                            for(Drink s:founds){
-                                addItem(s.getName());
-                            }
-
-                            setEditable(true);
-                            setPopupVisible(true);
-                            tc.requestFocus();
+                void update(){
+                    SwingUtilities.invokeLater(() -> {
+                        List<Drink> founds = new ArrayList<>(searchable.search(tc.getText().toLowerCase()));
+                        Set<String> foundSet = new HashSet<>();
+                        for(Drink s1 : founds){
+                            foundSet.add(s1.getName().toLowerCase());
                         }
+                        Collections.sort(founds);
+
+                        setEditable(false);
+                        removeAllItems();
+
+                        if(!foundSet.contains(tc.getText().toLowerCase())){
+                            //noinspection unchecked
+                            addItem(tc.getText());
+                        }
+
+                        for(Drink s1 :founds){
+                            //noinspection unchecked
+                            addItem(s1.getName());
+                        }
+
+                        setEditable(true);
+                        setPopupVisible(true);
+                        tc.requestFocus();
                     });
                 }
             });

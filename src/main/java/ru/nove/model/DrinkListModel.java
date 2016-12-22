@@ -4,6 +4,7 @@ import ru.nove.model.entities.Drink;
 import ru.nove.model.utils.AutoSaveUtil;
 import ru.nove.model.utils.SaveLoadUtil;
 import ru.nove.view.GUI;
+import ru.nove.view.HistoryModes;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ public class DrinkListModel {
     private HistoryHandler historyHandler;
     private GUI gui;
     private SaveLoadUtil saveLoad;
+    @SuppressWarnings("FieldCanBeLocal")
     private final int OK = 1;
     private final int ERROR = -1;
 
@@ -107,7 +109,7 @@ public class DrinkListModel {
         gui.closeAllFrames();
     }
 
-    public void viewHistory(int mode) {
+    public void viewHistory(HistoryModes mode) {
         List<String> history = historyHandler.formHistory(mode);
         gui.displayHistory(history);
     }

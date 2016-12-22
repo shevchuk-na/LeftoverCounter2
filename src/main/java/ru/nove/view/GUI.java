@@ -15,8 +15,6 @@ public class GUI {
     private static final int SALE_BUTTON = 3;
     private static final int CUSTOM_SALE_BUTTON = 5;
     private static final int ADD_AMOUNT = 7;
-    private static final String CUSTOM_SALE = "customSale";
-    private static final String CUSTOM_ADD = "customAdd";
     private static final String ALPHABETICAL = "alphabetical";
     private static final String AVAILABLE = "available";
     private GraphicController controller;
@@ -118,12 +116,13 @@ public class GUI {
     private void createHistoryWindow(){
         if(historyWindow == null) {
             historyWindow = new HistoryWindow(this);
+            controller.viewHistory(HistoryModes.chronological);
         } else {
             historyWindow.showHistoryWindow();
         }
     }
 
-    private void createSellAddWindow(String drink, String command){
+    private void createSellAddWindow(String drink, SellAddModes command){
         if(sellAddWindow == null){
             sellAddWindow = new SellAddWindow(this, drink, command);
         } else {
@@ -199,7 +198,7 @@ public class GUI {
         customSaleButton.addActionListener(e -> {
             for(Box sourcebox:boxArray){
                 if(e.getSource() == sourcebox.getComponent(CUSTOM_SALE_BUTTON)){
-                    createSellAddWindow(sourcebox.getName(), CUSTOM_SALE);
+                    createSellAddWindow(sourcebox.getName(), SellAddModes.customSale);
                     break;
                 }
             }
@@ -210,7 +209,7 @@ public class GUI {
         addAmountButton.addActionListener(e -> {
             for(Box sourcebox:boxArray){
                 if(e.getSource() == sourcebox.getComponent(ADD_AMOUNT)){
-                    createSellAddWindow(sourcebox.getName(), CUSTOM_ADD);
+                    createSellAddWindow(sourcebox.getName(), SellAddModes.customAdd);
                     break;
                 }
             }

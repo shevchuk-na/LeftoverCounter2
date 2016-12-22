@@ -5,6 +5,7 @@ import java.awt.*;
 
 class SortViewWindow {
 
+    @SuppressWarnings("FieldCanBeLocal")
     private GUI gui;
     private JFrame sortViewFrame;
     private static final String ALPHABETICAL = "alphabetical";

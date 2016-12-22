@@ -5,22 +5,20 @@ import java.awt.*;
 
 class SellAddWindow {
     private GUI gui;
-    private static final String CUSTOM_SALE = "customSale";
-    private static final String CUSTOM_ADD = "customAdd";
     private JFrame sellAddFrame;
     private JTextField nameField, saleAmount;
     private JButton saleButton;
 
-    SellAddWindow(GUI gui, String drink, String command){
+    SellAddWindow(GUI gui, String drink, SellAddModes command){
         this.gui = gui;
         sellAddFrame = new JFrame();
         saleButton = new JButton();
         switch (command){
-            case CUSTOM_SALE:
+            case customSale:
                 sellAddFrame.setTitle("Продать количество");
                 saleButton.setText("Продать");
                 break;
-            case CUSTOM_ADD:
+            case customAdd:
                 sellAddFrame.setTitle("Добавить количество");
                 saleButton.setText("Добавить");
                 break;
@@ -29,6 +27,7 @@ class SellAddWindow {
         nameField = new JTextField(drink, 15);
         nameField.setEditable(false);
         nameField.setMargin(new Insets(3,2,3,2));
+        nameField.setFont(nameField.getFont().deriveFont(Font.BOLD));
         saleAmount = new JTextField(5);
         saleAmount.setMargin(new Insets(3,2,3,2));
         saleButton.addActionListener(e -> performCustomAction(nameField.getText(), saleAmount.getText(), saleButton.getText()));
@@ -42,14 +41,14 @@ class SellAddWindow {
         saleAmount.requestFocus();
     }
 
-    void showSellAddWindow(String drink, String command) {
+    void showSellAddWindow(String drink, SellAddModes command) {
         if(sellAddFrame != null){
             switch (command){
-                case CUSTOM_SALE:
+                case customSale:
                     sellAddFrame.setTitle("Продать количество");
                     saleButton.setText("Продать");
                     break;
-                case CUSTOM_ADD:
+                case customAdd:
                     sellAddFrame.setTitle("Добавить количество");
                     saleButton.setText("Добавить");
                     break;

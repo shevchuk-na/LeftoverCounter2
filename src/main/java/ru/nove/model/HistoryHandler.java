@@ -2,9 +2,9 @@ package ru.nove.model;
 
 import ru.nove.model.entities.Drink;
 import ru.nove.model.utils.DateUtil;
+import ru.nove.view.HistoryModes;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import static ru.nove.model.entities.Drink.getCompByName;
@@ -16,13 +16,13 @@ class HistoryHandler {
         this.archiveHandler = archiveHandler;
     }
 
-    List<String> formHistory(int mode) {
+    List<String> formHistory(HistoryModes mode) {
         List<String> history = new ArrayList<>();
         List<Drink> allDrinks = new ArrayList<>();
         allDrinks.addAll(archiveHandler.getArchive());
 
         switch(mode){
-            case 1:
+            case alphabetical:
                 allDrinks.sort(getCompByName());
                 for(Drink drink: allDrinks){
                     for (int i = 0; i < drink.getAmountHistory().size(); i++) {
@@ -30,7 +30,7 @@ class HistoryHandler {
                     }
                 }
                 break;
-            case 2:
+            case chronological:
                 ArrayList<Long> tsHistory = new ArrayList<>();
                 for(Drink drink: allDrinks){
                     for(int i = 0; i < drink.getAmountHistory().size(); i++){

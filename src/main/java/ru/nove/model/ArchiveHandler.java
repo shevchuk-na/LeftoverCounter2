@@ -45,13 +45,4 @@ public class ArchiveHandler {
     void editDefaultAmount(Drink drink, int defaultAmount){
         drink.setDefaultAmount(defaultAmount);
     }
-
-    Drink getDrink(String name){
-        for(Drink drink:archive){
-            if(drink.getName().equals(name)){
-                return drink;
-            }
-        }
-        return null;
-    }
 }

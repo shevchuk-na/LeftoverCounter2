@@ -86,8 +86,8 @@ class ArchiveWindow {
         makeObsoleteButton.addActionListener(e -> {
             obsoleteMode = true;
             editButton.setEnabled(false);
-            editName.setText("БУДЕТ СКРЫТО:" + editName.getText());
-            editAmount.setText("БУДЕТ СКРЫТО:" + editAmount.getText());
+            editName.setText("УБРАТЬ:" + editName.getText());
+            editAmount.setText("УБРАТЬ:" + editAmount.getText());
             okEditButton.setEnabled(true);
             cancelEditButton.setEnabled(true);
         });
@@ -95,6 +95,7 @@ class ArchiveWindow {
             if(editMode){
                 try {
                     gui.getController().editArchiveItem(drinkEdited, editName.getText(), Integer.parseInt(editAmount.getText()));
+                    gui.updatePosition(drinkEdited);
                     editMode = false;
                 } catch (NumberFormatException ex){
                     editAmount.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.RED), BorderFactory.createEmptyBorder(3,2,3,2)));
@@ -105,7 +106,6 @@ class ArchiveWindow {
             }
             resetEditField();
             createDrinkList(listBox);
-            gui.updatePosition(drinkEdited);        //TODO: updates deleted item: ArrayIndexOutOfBounds
         });
         cancelEditButton.addActionListener(e -> {
             if(editMode){

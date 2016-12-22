@@ -3,6 +3,7 @@ package ru.nove.controller;
 import ru.nove.model.DrinkListModel;
 import ru.nove.model.entities.Drink;
 import ru.nove.view.GUI;
+import ru.nove.view.HistoryModes;
 
 import java.util.List;
 
@@ -41,12 +42,12 @@ public class GraphicController {
     public void exit() {
         if(model.saveData() == OK){
             model.exit();
-        }else {
+        } else {
             gui.showSaveError();
         }
     }
 
-    public void viewHistory(int mode) {
+    public void viewHistory(HistoryModes mode) {
         model.viewHistory(mode);
 
     }

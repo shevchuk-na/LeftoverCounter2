@@ -19,6 +19,7 @@ public class SaveLoadUtil {
     public List<Drink> loadArchive() throws IOException, ClassNotFoundException {
         if(checkSaveFile() == 1){
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(ARCHIVE_FILE));
+            @SuppressWarnings("unchecked")
             List<Drink> archive = (ArrayList<Drink>) ois.readObject();
             ois.close();
             return archive;
@@ -30,9 +31,11 @@ public class SaveLoadUtil {
         File file = new File(ARCHIVE_FILE);
         if(!file.exists()){
             File parent = new File(file.getParent());
-            parent.mkdir();
-            file.createNewFile();
-            return 0;
+            if(parent.mkdir()){
+                if(file.createNewFile()){
+                    return 0;
+                }
+            }
         }
         return 1;
     }
