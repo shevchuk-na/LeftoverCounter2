@@ -147,6 +147,9 @@ public class GUI {
             case available:
                 boxArray.sort(getSortByAmount());
                 break;
+            case defAmount:
+                boxArray.sort(getSortByDefaultAmount());
+                break;
         }
         for(Box row:boxArray){
             mainBox.add(row);
@@ -166,6 +169,18 @@ public class GUI {
 
     private Comparator<Box> getSortBoxByName() {
         return (d1, d2) -> d1.getName().compareTo(d2.getName());
+    }
+
+    private Comparator<Box> getSortByDefaultAmount() {
+        return (d1, d2) -> {
+            JButton one = (JButton) d1.getComponent(SALE_BUTTON);
+            JButton two = (JButton) d2.getComponent(SALE_BUTTON);
+            String[] defAmount1 = one.getText().split("Продать ");
+            int defaultAmount1 = Integer.parseInt(defAmount1[1]);
+            String[] defAmount2 = two.getText().split("Продать ");
+            int defaultAmount2 = Integer.parseInt(defAmount2[1]);
+            return defaultAmount1 - defaultAmount2;
+        };
     }
     
     private void exit() {

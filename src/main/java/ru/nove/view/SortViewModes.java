@@ -1,5 +1,5 @@
 package ru.nove.view;
 
 enum SortViewModes {
-    alphabetical, available
+    alphabetical, available, defAmount
 }
