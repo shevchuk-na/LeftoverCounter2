@@ -138,13 +138,13 @@ public class GUI {
         }
     }
 
-    void modifyView(String order) {
+    void modifyView(SortViewModes order) {
         mainBox.removeAll();
         switch(order){
-            case ALPHABETICAL:
+            case alphabetical:
                 boxArray.sort(getSortBoxByName());
                 break;
-            case AVAILABLE:
+            case available:
                 boxArray.sort(getSortByAmount());
                 break;
         }
@@ -227,7 +227,7 @@ public class GUI {
         rowBox.setName(drink.getName());
         boxArray.add(rowBox);
         mainBox.add(rowBox);
-        modifyView(ALPHABETICAL);
+        modifyView(SortViewModes.alphabetical);
     }
 
     private void updateFrame() {

@@ -22,9 +22,9 @@ class SortViewWindow {
         JButton applyViewButton = new JButton("Применить");
         applyViewButton.addActionListener(e -> {
             if(alphabetView.isSelected()){
-                gui.modifyView(ALPHABETICAL);
+                gui.modifyView(SortViewModes.alphabetical);
             }else if(chronoView.isSelected()){
-                gui.modifyView(AVAILABLE);
+                gui.modifyView(SortViewModes.available);
             }
             sortViewFrame.setVisible(false);
         });

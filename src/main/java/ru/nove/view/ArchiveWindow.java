@@ -78,6 +78,7 @@ class ArchiveWindow {
         editButton.addActionListener(e -> {
             editMode = true;
             makeObsoleteButton.setEnabled(false);
+            editButton.setEnabled(false);
             editName.setEditable(true);
             editAmount.setEditable(true);
             okEditButton.setEnabled(true);
@@ -86,6 +87,7 @@ class ArchiveWindow {
         makeObsoleteButton.addActionListener(e -> {
             obsoleteMode = true;
             editButton.setEnabled(false);
+            makeObsoleteButton.setEnabled(false);
             editName.setText("УБРАТЬ:" + editName.getText());
             editAmount.setText("УБРАТЬ:" + editAmount.getText());
             okEditButton.setEnabled(true);
