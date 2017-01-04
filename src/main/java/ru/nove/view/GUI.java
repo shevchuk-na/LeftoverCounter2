@@ -23,27 +23,41 @@ public class GUI {
     private HistoryWindow historyWindow;
     private SellAddWindow sellAddWindow;
     private ArchiveWindow archiveWindow;
+    private JTabbedPane tabbedPane;
+    private JPanel mainPanelPlus, mainPanelMinus;
     
     private JFrame mainFrame;
-    private List<Box> boxArray;
-    private Box mainBox;
+    private List<Box> boxArrayPlus, boxArrayMinus, boxArrayAll;
+    private Box mainBoxPlus, mainBoxMinus;
     private JTextArea logArea;
     private JButton cancelButton;
 
     public GUI(GraphicController controller) {
         this.controller = controller;
-        boxArray = new ArrayList<>();
+        boxArrayPlus = new ArrayList<>();
+        boxArrayMinus = new ArrayList<>();
     }
 
     public void createGui(){
         mainFrame = new JFrame("Счетчик плюсоминусов");
-        JPanel mainPanel = new JPanel();
-        mainBox = new Box(BoxLayout.Y_AXIS);
-        mainBox.setAlignmentY(1);
-        mainPanel.add(mainBox, BorderLayout.CENTER);
-        JScrollPane scrollPane = new JScrollPane(mainPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+        tabbedPane = new JTabbedPane();
+        mainPanelPlus = new JPanel();
+        mainPanelMinus = new JPanel();
+        tabbedPane.add("Плюсы", mainPanelPlus);
+        tabbedPane.add("Минусы", mainPanelMinus);
+
+        mainBoxPlus = new Box(BoxLayout.Y_AXIS);
+        mainBoxMinus = new Box(BoxLayout.Y_AXIS);
+        mainBoxPlus.setAlignmentY(1);
+        mainBoxMinus.setAlignmentY(1);
+        mainPanelPlus.add(mainBoxPlus, BorderLayout.CENTER);
+        mainPanelMinus.add(mainBoxMinus, BorderLayout.CENTER);
+        JScrollPane scrollPanePlus = new JScrollPane(mainPanelPlus, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane.setPreferredSize(new Dimension(600, 500));
+        scrollPanePlus.setPreferredSize(new Dimension(600, 500));
+        JScrollPane scrollPaneMinus = new JScrollPane(mainPanelMinus, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPaneMinus.setPreferredSize(new Dimension(600, 500));
 
         Box topButtonBox = new Box(BoxLayout.X_AXIS);
         JButton addButton = new JButton("Добавить позицию");
@@ -79,7 +93,7 @@ public class GUI {
         mainFrame.setIconImage(image);
 
         mainFrame.getContentPane().add(topButtonBox, BorderLayout.NORTH);
-        mainFrame.getContentPane().add(scrollPane, BorderLayout.CENTER);
+        mainFrame.getContentPane().add(tabbedPane, BorderLayout.CENTER);
         mainFrame.getContentPane().add(logArea, BorderLayout.SOUTH);
         mainFrame.pack();
         mainFrame.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
@@ -139,7 +153,8 @@ public class GUI {
     }
 
     void modifyView(String order) {
-        mainBox.removeAll();
+        mainBoxPlus.removeAll();
+        mainBoxMinus.removeAll();
         switch(order){
             case ALPHABETICAL:
                 boxArray.sort(getSortBoxByName());
@@ -165,7 +180,7 @@ public class GUI {
     }
 
     private Comparator<Box> getSortBoxByName() {
-        return (d1, d2) -> d1.getName().compareTo(d2.getName());
+        return Comparator.comparing(Component::getName);
     }
     
     private void exit() {
@@ -185,7 +200,7 @@ public class GUI {
         saleButton.setPreferredSize(new Dimension(110, 30));
         saleButton.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(2,0,2,0),saleButton.getBorder()));
         saleButton.addActionListener(e -> {
-            for(Box sourceBox:boxArray){
+            for(Box sourceBox:boxArrayAll){
                 if(e.getSource() == sourceBox.getComponent(SALE_BUTTON)){
                     sellDefaultAmount(sourceBox.getName());
                     break;
@@ -196,7 +211,7 @@ public class GUI {
         customSaleButton.setPreferredSize(new Dimension(85, 30));
         customSaleButton.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(2,0,2,0), customSaleButton.getBorder()));
         customSaleButton.addActionListener(e -> {
-            for(Box sourcebox:boxArray){
+            for(Box sourcebox:boxArrayAll){
                 if(e.getSource() == sourcebox.getComponent(CUSTOM_SALE_BUTTON)){
                     createSellAddWindow(sourcebox.getName(), SellAddModes.customSale);
                     break;
@@ -207,7 +222,7 @@ public class GUI {
         addAmountButton.setPreferredSize(new Dimension(90, 30));
         addAmountButton.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(2,0,2,0), addAmountButton.getBorder()));
         addAmountButton.addActionListener(e -> {
-            for(Box sourcebox:boxArray){
+            for(Box sourcebox:boxArrayAll){
                 if(e.getSource() == sourcebox.getComponent(ADD_AMOUNT)){
                     createSellAddWindow(sourcebox.getName(), SellAddModes.customAdd);
                     break;
@@ -225,8 +240,14 @@ public class GUI {
         rowBox.add(Box.createRigidArea(new Dimension(3,0)));
         rowBox.add(addAmountButton);
         rowBox.setName(drink.getName());
-        boxArray.add(rowBox);
-        mainBox.add(rowBox);
+        if(drink.getAmount() > 0){
+            boxArrayPlus.add(rowBox);
+            mainBoxPlus.add(rowBox);
+        } else {
+            boxArrayMinus.add(rowBox);
+            mainBoxMinus.add(rowBox);
+        }
+        boxArrayAll.add(rowBox);
         modifyView(ALPHABETICAL);
     }
 
@@ -240,8 +261,11 @@ public class GUI {
     }
 
     public void showDrinks(List<Drink> drinks) {
-        mainBox.removeAll();
-        boxArray = new ArrayList<>();
+        mainBoxPlus.removeAll();
+        mainBoxMinus.removeAll();
+        boxArrayPlus = new ArrayList<>();
+        boxArrayMinus = new ArrayList<>();
+        boxArrayAll = new ArrayList<>();
         drinks.sort(getSortDrinkByName());
         drinks.forEach(this::addPosition);
         updateFrame();
@@ -252,6 +276,7 @@ public class GUI {
     }
 
     public void updatePosition(Drink drink) {
+
         int index = getIndex(drink.getName());
         JTextField amount = (JTextField) boxArray.get(index).getComponent(AMOUNT);
         amount.setText(String.valueOf(drink.getAmount()));
