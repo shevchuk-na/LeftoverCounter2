@@ -25,7 +25,7 @@ public class GUI {
     private ArchiveWindow archiveWindow;
     private JTabbedPane tabbedPane;
     private JPanel mainPanelPlus, mainPanelMinus;
-    
+
     private JFrame mainFrame;
     private List<Box> boxArrayPlus, boxArrayMinus, boxArrayAll;
     private Box mainBoxPlus, mainBoxMinus;
@@ -156,11 +156,14 @@ public class GUI {
         mainBoxPlus.removeAll();
         mainBoxMinus.removeAll();
         switch(order){
-            case ALPHABETICAL:
+            case alphabetical:
                 boxArray.sort(getSortBoxByName());
                 break;
-            case AVAILABLE:
+            case available:
                 boxArray.sort(getSortByAmount());
+                break;
+            case defAmount:
+                boxArray.sort(getSortByDefaultAmount());
                 break;
         }
         for(Box row:boxArray){
@@ -182,7 +185,19 @@ public class GUI {
     private Comparator<Box> getSortBoxByName() {
         return Comparator.comparing(Component::getName);
     }
-    
+
+    private Comparator<Box> getSortByDefaultAmount() {
+        return (d1, d2) -> {
+            JButton one = (JButton) d1.getComponent(SALE_BUTTON);
+            JButton two = (JButton) d2.getComponent(SALE_BUTTON);
+            String[] defAmount1 = one.getText().split("Продать ");
+            int defaultAmount1 = Integer.parseInt(defAmount1[1]);
+            String[] defAmount2 = two.getText().split("Продать ");
+            int defaultAmount2 = Integer.parseInt(defAmount2[1]);
+            return defaultAmount1 - defaultAmount2;
+        };
+    }
+
     private void exit() {
         controller.exit();
     }
