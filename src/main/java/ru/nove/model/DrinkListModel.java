@@ -19,7 +19,6 @@ public class DrinkListModel {
     private HistoryHandler historyHandler;
     private GUI gui;
     private SaveLoadUtil saveLoad;
-    @SuppressWarnings("FieldCanBeLocal")
     private final int OK = 1;
     private final int ERROR = -1;
 
@@ -71,7 +70,7 @@ public class DrinkListModel {
         gui.enableCancelButton(true);
         gui.showSaleInfo(drink, amount);
         if(drink.getAmount() == 0){
-            gui.removePosition(drink.getName());
+            gui.removePosition(drink);
             drinks.remove(drink);
         } else {
             gui.updatePosition(drink);
@@ -98,7 +97,7 @@ public class DrinkListModel {
         gui.enableCancelButton(true);
         gui.showAddInfo(drink, amount);
         if(drink.getAmount() == 0){
-            gui.removePosition(drink.getName());
+            gui.removePosition(drink);
             drinks.remove(drink);
         } else {
             gui.updatePosition(drink);
@@ -152,28 +151,35 @@ public class DrinkListModel {
             int lastDrinkIndex = archiveHandler.getArchive().indexOf(salesThisSession.get(lastSessionSaleIndex));
             Drink lastDrink = archiveHandler.getArchive().get(lastDrinkIndex);
             if(lastDrink.getAmountHistory().size() == 1){                   //только что добавили
-                gui.removePosition(lastDrink.getName());
+                gui.removePosition(lastDrink);
                 archiveHandler.removeFromArchive(lastDrink);
             } else {
                 int lastAmount = lastDrink.getAmountHistory().get(lastDrink.getAmountHistory().size() - 1);
                 int amountBeforeLast = lastDrink.getAmountHistory().get(lastDrink.getAmountHistory().size() - 2);
-                if(lastAmount > amountBeforeLast){                          //добавили
-                    if(amountBeforeLast == 0){                              //реактивация позиции
-                        gui.removePosition(lastDrink.getName());
+                if (amountBeforeLast == 0) {                              //реактивация позиции
+                    gui.removePosition(lastDrink);
+                    lastDrink.removeSale();
+                    drinks.remove(lastDrink);
+                } else {
+                    if (lastAmount > amountBeforeLast) {                          //добавили
                         lastDrink.removeSale();
-                        drinks.remove(lastDrink);
-                    } else {                                                //просто добавление
+                        if (lastAmount == 0) {
+                            gui.addPosition(lastDrink);
+                        } else if (amountBeforeLast < 0 && lastAmount > 0) {
+                            gui.switchPosition(lastDrink);
+                        } else {                                                //просто добавление
+                            gui.updatePosition(lastDrink);
+                        }
+                    } else {                                                    //убрали
                         lastDrink.removeSale();
-                        gui.updatePosition(lastDrink);
-                    }
-                } else {                                                    //убрали
-                    if(lastAmount == 0){                                    //убрали последнее
-                        lastDrink.removeSale();
-                        drinks.add(lastDrink);
-                        gui.addPosition(lastDrink);
-                    } else {                                                //просто убрали
-                        lastDrink.removeSale();
-                        gui.updatePosition(lastDrink);
+                        if (lastAmount == 0) {                                    //убрали последнее
+                            drinks.add(lastDrink);
+                            gui.addPosition(lastDrink);
+                        } else if (amountBeforeLast > 0 && lastAmount < 0) {
+                            gui.switchPosition(lastDrink);
+                        } else {                                                //просто убрали
+                            gui.updatePosition(lastDrink);
+                        }
                     }
                 }
             }
