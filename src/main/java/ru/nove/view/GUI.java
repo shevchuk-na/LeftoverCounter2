@@ -32,6 +32,7 @@ public class GUI {
     private Box mainBoxPlus, mainBoxMinus;
     private JTextArea logArea;
     private JButton cancelButton;
+    private JTextField searchField;
 
     public GUI(GraphicController controller) {
         this.controller = controller;
@@ -111,22 +112,22 @@ public class GUI {
         logArea.setMargin(new Insets(2,5,2,5));
         logArea.setEditable(false);
 
-        JTextField searchField = new JTextField(20);
+        searchField = new JTextField(20);
         searchField.getDocument().addDocumentListener(new DocumentListener() {
 
             @Override
             public void insertUpdate(DocumentEvent e) {
-                scrollToComponent();
+                highlightComponent();
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                scrollToComponent();
+                highlightComponent();
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                scrollToComponent();
+                highlightComponent();
             }
             List<Box> getActiveBoxArray() {
                 if(activePane == scrollPanePlus){
@@ -135,7 +136,7 @@ public class GUI {
                     return boxArrayMinus;
                 }
             }
-            void scrollToComponent(){
+            void highlightComponent(){
                 if(!searchField.getText().equals("")) {
                     for (Box box : getActiveBoxArray()) {
                         box.getComponent(0).setBackground(mainFrame.getBackground());
@@ -342,6 +343,7 @@ public class GUI {
     private void updateFrame() {
         mainFrame.revalidate();
         mainFrame.repaint();
+        searchField.requestFocus();
     }
 
     private void sellDefaultAmount(String drink) {
