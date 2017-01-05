@@ -8,9 +8,9 @@ import java.awt.*;
 class ArchiveWindow {
     private GUI gui;
     private JFrame archiveFrame;
-    private JTextField editName, editAmount;
+    private JTextField editNameField, editAmountField;
     private Box listBox;
-    private JButton editButton, okEditButton, makeObsoleteButton, cancelEditButton;
+    private JButton editNameButton, okButton, makeObsoleteButton, cancelButton;
     private ButtonGroup drinkGroup;
     private boolean editMode, obsoleteMode;
     private Drink drinkEdited;
@@ -27,14 +27,14 @@ class ArchiveWindow {
 
         JPanel editPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        editButton = new JButton("Изменить");
+        editNameButton = new JButton("Изменить");
         gbc.gridx = gbc.gridy = 0;
         gbc.weightx = gbc.weighty = 0;
         gbc.anchor = GridBagConstraints.FIRST_LINE_START;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(2,2,2,2);
-        editPanel.add(editButton, gbc);
-        editButton.setEnabled(false);
+        editPanel.add(editNameButton, gbc);
+        editNameButton.setEnabled(false);
         makeObsoleteButton = new JButton("Убрать");
         gbc.gridx = 1;
         editPanel.add(makeObsoleteButton, gbc);
@@ -43,64 +43,64 @@ class ArchiveWindow {
         gbc.gridy = 1;
         gbc.insets = new Insets(15,2,5,2);
         editPanel.add(new JLabel("Название"), gbc);
-        editName = new JTextField();
+        editNameField = new JTextField();
         gbc.gridy = 2;
         gbc.gridwidth = 2;
         gbc.insets = new Insets(2,2,2,2);
         gbc.ipady = 5;
-        editPanel.add(editName, gbc);
-        editName.setEditable(false);
+        editPanel.add(editNameField, gbc);
+        editNameField.setEditable(false);
         gbc.gridy = 3;
         gbc.gridwidth = 1;
         gbc.ipady = 0;
         editPanel.add(new JLabel("Размер порции"), gbc);
-        editAmount = new JTextField();
+        editAmountField = new JTextField();
         gbc.gridy = 4;
         gbc.gridwidth = 2;
         gbc.ipady = 5;
-        editPanel.add(editAmount, gbc);
-        editAmount.setEditable(false);
-        okEditButton = new JButton("Сохранить");
+        editPanel.add(editAmountField, gbc);
+        editAmountField.setEditable(false);
+        okButton = new JButton("Сохранить");
         gbc.gridy = 5;
         gbc.gridwidth = 1;
         gbc.ipady = 0;
         gbc.weightx = gbc.weighty = 1;
         gbc.anchor = GridBagConstraints.LAST_LINE_START;
-        editPanel.add(okEditButton, gbc);
-        okEditButton.setEnabled(false);
-        cancelEditButton = new JButton("Отменить");
+        editPanel.add(okButton, gbc);
+        okButton.setEnabled(false);
+        cancelButton = new JButton("Отменить");
         gbc.gridx = 1;
-        editPanel.add(cancelEditButton, gbc);
-        cancelEditButton.setEnabled(false);
+        editPanel.add(cancelButton, gbc);
+        cancelButton.setEnabled(false);
         scrollPane.setPreferredSize(new Dimension(200, 400));
         editPanel.setPreferredSize(new Dimension(200, 200));
 
-        editButton.addActionListener(e -> {
+        editNameButton.addActionListener(e -> {
             editMode = true;
             makeObsoleteButton.setEnabled(false);
-            editButton.setEnabled(false);
-            editName.setEditable(true);
-            editAmount.setEditable(true);
-            okEditButton.setEnabled(true);
-            cancelEditButton.setEnabled(true);
+            editNameButton.setEnabled(false);
+            editNameField.setEditable(true);
+            editAmountField.setEditable(true);
+            okButton.setEnabled(true);
+            cancelButton.setEnabled(true);
         });
         makeObsoleteButton.addActionListener(e -> {
             obsoleteMode = true;
-            editButton.setEnabled(false);
+            editNameButton.setEnabled(false);
             makeObsoleteButton.setEnabled(false);
-            editName.setText("УБРАТЬ:" + editName.getText());
-            editAmount.setText("УБРАТЬ:" + editAmount.getText());
-            okEditButton.setEnabled(true);
-            cancelEditButton.setEnabled(true);
+            editNameField.setText("УБРАТЬ:" + editNameField.getText());
+            editAmountField.setText("УБРАТЬ:" + editAmountField.getText());
+            okButton.setEnabled(true);
+            cancelButton.setEnabled(true);
         });
-        okEditButton.addActionListener(e -> {
+        okButton.addActionListener(e -> {
             if(editMode){
                 try {
-                    gui.getController().editArchiveItem(drinkEdited, editName.getText(), Integer.parseInt(editAmount.getText()));
+                    gui.getController().editArchiveItem(drinkEdited, editNameField.getText(), Integer.parseInt(editAmountField.getText()));
                     gui.updatePosition(drinkEdited);
                     editMode = false;
                 } catch (NumberFormatException ex){
-                    editAmount.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.RED), BorderFactory.createEmptyBorder(3,2,3,2)));
+                    editAmountField.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.RED), BorderFactory.createEmptyBorder(3,2,3,2)));
                 }
             } else if(obsoleteMode){
                 gui.getController().makeItemObsolete(drinkEdited);
@@ -109,12 +109,9 @@ class ArchiveWindow {
             resetEditField();
             createDrinkList(listBox);
         });
-        cancelEditButton.addActionListener(e -> {
-            if(editMode){
-                editMode = false;
-            } else if(obsoleteMode){
-                obsoleteMode = false;
-            }
+        cancelButton.addActionListener(e -> {
+            editMode = false;
+            obsoleteMode = false;
             resetEditField();
         });
 
@@ -141,10 +138,7 @@ class ArchiveWindow {
             item.addActionListener(e -> {
                 if(item.isSelected()){
                     drinkEdited = drink;
-                    editButton.setEnabled(true);
-                    makeObsoleteButton.setEnabled(true);
-                    editName.setText(drinkEdited.getName());
-                    editAmount.setText(String.valueOf(drinkEdited.getDefaultAmount()));
+                    returnNormalMode();
                 }
             });
             drinkGroup.add(item);
@@ -153,16 +147,29 @@ class ArchiveWindow {
         updateFrame();
     }
 
+    private void returnNormalMode(){
+        editNameButton.setEnabled(true);
+        makeObsoleteButton.setEnabled(true);
+        editMode = false;
+        obsoleteMode = false;
+        editNameField.setEditable(false);
+        editAmountField.setEditable(false);
+        okButton.setEnabled(false);
+        cancelButton.setEnabled(false);
+        editNameField.setText(drinkEdited.getName());
+        editAmountField.setText(String.valueOf(drinkEdited.getDefaultAmount()));
+    }
+
     private void resetEditField(){
         drinkGroup.clearSelection();
-        editButton.setEnabled(false);
+        editNameButton.setEnabled(false);
         makeObsoleteButton.setEnabled(false);
-        okEditButton.setEnabled(false);
-        cancelEditButton.setEnabled(false);
-        editAmount.setText("");
-        editName.setText("");
-        editName.setEditable(false);
-        editAmount.setEditable(false);
+        okButton.setEnabled(false);
+        cancelButton.setEnabled(false);
+        editAmountField.setText("");
+        editNameField.setText("");
+        editNameField.setEditable(false);
+        editAmountField.setEditable(false);
     }
 
     private void updateFrame(){

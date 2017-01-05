@@ -50,6 +50,7 @@ class InputWindow {
         inputFrame.setSize(320, 145);
         inputFrame.getContentPane().add(panel);
         inputFrame.setLocationRelativeTo(gui.getMainFrame());
+        inputFrame.getRootPane().setDefaultButton(addButton);
         inputFrame.setVisible(true);
         name.requestFocus();
     }

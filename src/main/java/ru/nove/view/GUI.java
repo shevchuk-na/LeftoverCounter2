@@ -50,12 +50,20 @@ public class GUI {
         mainPanelMinus.add(mainBoxMinus, BorderLayout.CENTER);
         JScrollPane scrollPanePlus = new JScrollPane(mainPanelPlus, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPanePlus.setPreferredSize(new Dimension(600, 500));
+        Dimension scrollPaneDimension = new Dimension(600, 500);
+        scrollPanePlus.setPreferredSize(scrollPaneDimension);
         JScrollPane scrollPaneMinus = new JScrollPane(mainPanelMinus, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPaneMinus.setPreferredSize(new Dimension(600, 500));
-        tabbedPane.add("Плюсы", scrollPanePlus);
-        tabbedPane.add("Минусы", scrollPaneMinus);
+        scrollPaneMinus.setPreferredSize(scrollPaneDimension);
+        tabbedPane.add(scrollPanePlus);
+        tabbedPane.add(scrollPaneMinus);
+        JLabel plusLabel = new JLabel("Плюсы", JLabel.CENTER);
+        Dimension tabDimension = new Dimension(292, 25);
+        plusLabel.setPreferredSize(tabDimension );
+        tabbedPane.setTabComponentAt(0, plusLabel);
+        JLabel minusLabel = new JLabel("Минусы", JLabel.CENTER);
+        minusLabel.setPreferredSize(tabDimension);
+        tabbedPane.setTabComponentAt(1, minusLabel);
 
         Box topButtonBox = new Box(BoxLayout.X_AXIS);
         JButton addButton = new JButton("Добавить позицию");
@@ -102,6 +110,7 @@ public class GUI {
             }
         });
         mainFrame.setLocationRelativeTo(null);
+        mainFrame.setMinimumSize(new Dimension(650, 650));
         mainFrame.setVisible(true);
     }
 
@@ -268,6 +277,7 @@ public class GUI {
         }
         boxArrayAll.add(rowBox);
         sortPositions(SortViewModes.alphabetical);
+        showAddInfo(drink, drink.getAmount());
     }
 
     private void updateFrame() {
@@ -297,12 +307,15 @@ public class GUI {
     public void updatePosition(Drink drink) {
         JTextField amount;
         JButton saleButton;
-//        if((drink.getAmountHistory().get(drink.getAmountHistory().size() -1) > 0 &&
-//                drink.getAmountHistory().get(drink.getAmountHistory().size() -2) < 0) ||
-//                (drink.getAmountHistory().get(drink.getAmountHistory().size()-1) < 0 &&
-//                        drink.getAmountHistory().get(drink.getAmountHistory().size()-2) > 0)){
-//            switchPosition(drink);
-//        }
+        if(drink.getAmount() < 0) {
+            if(inPlusList(drink)){
+                switchPosition(drink);
+            }
+        } else if(drink.getAmount() > 0){
+            if(inMinusList(drink)){
+                switchPosition(drink);
+            }
+        }
         if(drink.getAmount() > 0) {
             int index = getIndex(drink.getName(), boxArrayPlus);
             amount = (JTextField) boxArrayPlus.get(index).getComponent(AMOUNT);
@@ -350,16 +363,36 @@ public class GUI {
     }
 
     public void removePosition(Drink drink) {
-        if(drink.getAmountHistory().get(drink.getAmountHistory().size() -2) > 0){
+        if(inPlusList(drink)){
             int index = getIndex(drink.getName(), boxArrayPlus);
             boxArrayPlus.remove(index);
             mainBoxPlus.remove(index);
-        } else {
+        } else if(inMinusList(drink)){
             int index = getIndex(drink.getName(), boxArrayMinus);
             boxArrayMinus.remove(index);
             mainBoxMinus.remove(index);
+        } else {
+            showDeleteErrorWarning();
         }
         updateFrame();
+    }
+
+    private boolean inPlusList(Drink drink){
+        for(Box box:boxArrayPlus){
+            if(box.getName().equals(drink.getName())){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean inMinusList(Drink drink){
+        for(Box box:boxArrayMinus){
+            if(box.getName().equals(drink.getName())){
+                return true;
+            }
+        }
+        return false;
     }
 
     public void displayHistory(List<String> history) {
@@ -429,5 +462,9 @@ public class GUI {
 
     public void showNotEmptyWarning() {
         logArea.setText("Нельзя удалить позицию с ненулевым остатком!");
+    }
+
+    private void showDeleteErrorWarning() {
+        logArea.setText("Ошибка при удалении позиции");
     }
 }

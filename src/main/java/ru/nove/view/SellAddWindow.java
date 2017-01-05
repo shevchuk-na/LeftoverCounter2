@@ -37,6 +37,7 @@ class SellAddWindow {
         sellAddFrame.getContentPane().add(salePanel);
         sellAddFrame.setSize(new Dimension(360, 80));
         sellAddFrame.setLocationRelativeTo(gui.getMainFrame());
+        sellAddFrame.getRootPane().setDefaultButton(saleButton);
         sellAddFrame.setVisible(true);
         saleAmount.requestFocus();
     }
