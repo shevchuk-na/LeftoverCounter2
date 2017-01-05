@@ -25,6 +25,7 @@ class InputWindow {
         defaultAmount = new JTextField(5);
         defaultAmount.setMargin(new Insets(3, 2, 3, 2));
         name = new AutocompleteJComboBox(new DrinkSearchable(gui.getController().getActualArchive()));
+        name.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
         name.addItemListener(e -> checkDefaultAmount());
         name.addItemListener(e -> checkEntry());
         amount.addKeyListener(new KeyAdapter() {

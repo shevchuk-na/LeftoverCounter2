@@ -4,6 +4,8 @@ import ru.nove.controller.GraphicController;
 import ru.nove.model.entities.Drink;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -23,10 +25,10 @@ public class GUI {
     private SellAddWindow sellAddWindow;
     private ArchiveWindow archiveWindow;
     private JTabbedPane tabbedPane;
-    private JPanel mainPanelPlus, mainPanelMinus;
 
     private JFrame mainFrame;
     private List<Box> boxArrayPlus, boxArrayMinus, boxArrayAll;
+    private JScrollPane scrollPanePlus, scrollPaneMinus, activePane;
     private Box mainBoxPlus, mainBoxMinus;
     private JTextArea logArea;
     private JButton cancelButton;
@@ -40,32 +42,47 @@ public class GUI {
     public void createGui(){
         mainFrame = new JFrame("Счетчик плюсоминусов");
         tabbedPane = new JTabbedPane();
-        mainPanelPlus = new JPanel();
-        mainPanelMinus = new JPanel();
+        JPanel mainPanelPlus = new JPanel();
+        JPanel mainPanelMinus = new JPanel();
         mainBoxPlus = new Box(BoxLayout.Y_AXIS);
         mainBoxMinus = new Box(BoxLayout.Y_AXIS);
         mainBoxPlus.setAlignmentY(1);
         mainBoxMinus.setAlignmentY(1);
         mainPanelPlus.add(mainBoxPlus, BorderLayout.CENTER);
         mainPanelMinus.add(mainBoxMinus, BorderLayout.CENTER);
-        JScrollPane scrollPanePlus = new JScrollPane(mainPanelPlus, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+        scrollPanePlus = new JScrollPane(mainPanelPlus, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         Dimension scrollPaneDimension = new Dimension(600, 500);
         scrollPanePlus.setPreferredSize(scrollPaneDimension);
-        JScrollPane scrollPaneMinus = new JScrollPane(mainPanelMinus, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+        scrollPaneMinus = new JScrollPane(mainPanelMinus, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPaneMinus.setPreferredSize(scrollPaneDimension);
+
+        InputMap im = scrollPanePlus.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        for(int i = 0; i < 2; i++){
+            im.put(KeyStroke.getKeyStroke("PAGE_UP"), "scrollUp");
+            im.put(KeyStroke.getKeyStroke("PAGE_DOWN"), "scrollDown");
+            im.put(KeyStroke.getKeyStroke("DOWN"), "unitScrollDown");
+            im.put(KeyStroke.getKeyStroke("UP"), "unitScrollUp");
+            im = scrollPaneMinus.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        }
+        scrollPanePlus.getVerticalScrollBar().setUnitIncrement(15);
+        scrollPaneMinus.getVerticalScrollBar().setUnitIncrement(15);
+
+        activePane = scrollPanePlus;
         tabbedPane.add(scrollPanePlus);
         tabbedPane.add(scrollPaneMinus);
         JLabel plusLabel = new JLabel("Плюсы", JLabel.CENTER);
-        Dimension tabDimension = new Dimension(292, 25);
+        Dimension tabDimension = new Dimension(scrollPaneDimension.width/2 -8, 25);
         plusLabel.setPreferredSize(tabDimension );
         tabbedPane.setTabComponentAt(0, plusLabel);
         JLabel minusLabel = new JLabel("Минусы", JLabel.CENTER);
         minusLabel.setPreferredSize(tabDimension);
         tabbedPane.setTabComponentAt(1, minusLabel);
+        tabbedPane.addChangeListener(e -> activePane = (JScrollPane) tabbedPane.getSelectedComponent());
 
-        Box topButtonBox = new Box(BoxLayout.X_AXIS);
+
+        JPanel topPanel = new JPanel();
         JButton addButton = new JButton("Добавить позицию");
         addButton.addActionListener(e -> createInputWindow());
         JButton filterButton = new JButton("Вид");
@@ -78,29 +95,71 @@ public class GUI {
         cancelButton.addActionListener(e -> cancelLast());
         JButton exitButton = new JButton("Выход");
         exitButton.addActionListener(e -> exit());
-        topButtonBox.add(addButton);
-        topButtonBox.add(Box.createRigidArea(new Dimension(10,0)));
-        topButtonBox.add(filterButton);
-        topButtonBox.add(Box.createRigidArea(new Dimension(10,0)));
-        topButtonBox.add(historyButton);
-        topButtonBox.add(Box.createRigidArea(new Dimension(10,0)));
-        topButtonBox.add(archiveButton);
-        topButtonBox.add(Box.createRigidArea(new Dimension(10,0)));
-        topButtonBox.add(cancelButton);
-        topButtonBox.add(Box.createRigidArea(new Dimension(10,0)));
-        topButtonBox.add(exitButton);
-        topButtonBox.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
+
+        topPanel.add(addButton);
+        topPanel.add(filterButton);
+        topPanel.add(historyButton);
+        topPanel.add(archiveButton);
+        topPanel.add(cancelButton);
+        topPanel.add(exitButton);
+
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setLayout(new BorderLayout());
 
         logArea = new JTextArea();
-        logArea.setPreferredSize(new Dimension(500, 40));
+        logArea.setPreferredSize(new Dimension(410, 40));
         logArea.setMargin(new Insets(2,5,2,5));
+        logArea.setEditable(false);
+
+        JTextField searchField = new JTextField(20);
+        searchField.getDocument().addDocumentListener(new DocumentListener() {
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                scrollToComponent();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                scrollToComponent();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                scrollToComponent();
+            }
+            List<Box> getActiveBoxArray() {
+                if(activePane == scrollPanePlus){
+                    return boxArrayPlus;
+                } else {
+                    return boxArrayMinus;
+                }
+            }
+            void scrollToComponent(){
+                if(!searchField.getText().equals("")) {
+                    for (Box box : getActiveBoxArray()) {
+                        box.getComponent(0).setBackground(mainFrame.getBackground());
+                        if (box.getName().toLowerCase().contains(searchField.getText())) {
+                            box.getComponent(0).setBackground(Color.yellow);
+                        }
+                    }
+                } else {
+                    for (Box box : getActiveBoxArray()) {
+                        box.getComponent(0).setBackground(mainFrame.getBackground());
+                    }
+                }
+            }
+        });
+
+        bottomPanel.add(logArea, BorderLayout.WEST);
+        bottomPanel.add(searchField, BorderLayout.EAST);
 
         Image image = new ImageIcon("res/icon.png").getImage();
         mainFrame.setIconImage(image);
 
-        mainFrame.getContentPane().add(topButtonBox, BorderLayout.NORTH);
+        mainFrame.getContentPane().add(topPanel, BorderLayout.NORTH);
         mainFrame.getContentPane().add(tabbedPane, BorderLayout.CENTER);
-        mainFrame.getContentPane().add(logArea, BorderLayout.SOUTH);
+        mainFrame.getContentPane().add(bottomPanel, BorderLayout.SOUTH);
         mainFrame.pack();
         mainFrame.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
         mainFrame.addComponentListener(new ComponentAdapter() {
@@ -301,7 +360,7 @@ public class GUI {
     }
 
     private Comparator<Drink> getSortDrinkByName() {
-        return (d1, d2) -> d1.getName().compareTo(d2.getName());
+        return Comparator.comparing(Drink::getName);
     }
 
     public void updatePosition(Drink drink) {
