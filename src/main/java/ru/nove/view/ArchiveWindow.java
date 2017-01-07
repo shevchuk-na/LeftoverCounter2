@@ -24,6 +24,12 @@ class ArchiveWindow {
         JScrollPane scrollPane = new JScrollPane(listBox, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         drinkGroup = new ButtonGroup();
         createDrinkList(listBox);
+        JButton inventoryButton = new JButton("Начать инвентуру!");
+        inventoryButton.addActionListener(e -> openInventoryWindow());
+        inventoryButton.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(2,2,2,2), inventoryButton.getBorder()));
+        JPanel listPanel = new JPanel(new BorderLayout());
+        listPanel.add(scrollPane, BorderLayout.CENTER);
+        listPanel.add(inventoryButton, BorderLayout.SOUTH);
 
         JPanel editPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -115,11 +121,15 @@ class ArchiveWindow {
             resetEditField();
         });
 
-        archiveFrame.getContentPane().add(scrollPane, BorderLayout.WEST);
+        archiveFrame.getContentPane().add(listPanel, BorderLayout.WEST);
         archiveFrame.getContentPane().add(editPanel, BorderLayout.EAST);
         archiveFrame.pack();
         archiveFrame.setLocationRelativeTo(gui.getMainFrame());
         archiveFrame.setVisible(true);
+    }
+
+    private void openInventoryWindow() {
+        InventoryWindow inventory = new InventoryWindow(gui);
     }
 
     void showArchiveWindow() {

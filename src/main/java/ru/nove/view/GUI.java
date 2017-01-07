@@ -112,7 +112,8 @@ public class GUI {
         logArea.setMargin(new Insets(2,5,2,5));
         logArea.setEditable(false);
 
-        searchField = new JTextField(20);
+        searchField = new JTextField(15);
+        searchField.setFont(searchField.getFont().deriveFont(18f));
         searchField.getDocument().addDocumentListener(new DocumentListener() {
 
             @Override
@@ -129,6 +130,7 @@ public class GUI {
             public void changedUpdate(DocumentEvent e) {
                 highlightComponent();
             }
+
             List<Box> getActiveBoxArray() {
                 if(activePane == scrollPanePlus){
                     return boxArrayPlus;
@@ -356,7 +358,6 @@ public class GUI {
         boxArrayPlus = new ArrayList<>();
         boxArrayMinus = new ArrayList<>();
         boxArrayAll = new ArrayList<>();
-        drinks.sort(getSortDrinkByName());
         drinks.forEach(this::addPosition);
         updateFrame();
     }
