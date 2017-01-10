@@ -3,27 +3,24 @@ package ru.nove.view;
 import ru.nove.model.entities.Drink;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.lang.reflect.Array;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 class InventoryWindow {
     private GUI gui;
-    private char[] password = {'a','d','m','i','n'};
     private JFrame inventoryFrame;
-    private JScrollPane scrollPane;
-    private Box listBox;
-    private List<Box> boxList;
-    JButton startButton, finishButton;
+    private Box mainBox;
+    private List<Box> boxArray;
+    private JButton startButton, finishButton;
 
     InventoryWindow(GUI gui) {
         this.gui = gui;
 
-        boxList = new ArrayList<>();
+        boxArray = new ArrayList<>();
         inventoryFrame = new JFrame("Инвентаризация");
         JPanel controlPanel = new JPanel();
         JPasswordField passwordField = new JPasswordField(10);
@@ -43,12 +40,12 @@ class InventoryWindow {
         controlPanel.add(startButton);
         controlPanel.add(finishButton);
 
-        listBox = new Box(BoxLayout.Y_AXIS);
+        mainBox = new Box(BoxLayout.Y_AXIS);
 
         JPanel mainPanel = new JPanel();
-        mainPanel.add(listBox, BorderLayout.CENTER);
+        mainPanel.add(mainBox, BorderLayout.CENTER);
 
-        scrollPane = new JScrollPane(mainPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        JScrollPane scrollPane = new JScrollPane(mainPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setPreferredSize(new Dimension(500, 500));
 
         JTextField searchField = new JTextField(20);
@@ -70,14 +67,18 @@ class InventoryWindow {
     }
 
     private boolean checkPassword(char[] password) {
-        return Arrays.equals(password, this.password);
+        boolean isCorrect;
+        char[] correctPassword = {'a','d','m','i','n'};
+        isCorrect = password.length == correctPassword.length && Arrays.equals(password, correctPassword);
+        Arrays.fill(correctPassword, '0');
+        return isCorrect;
     }
 
     private void fillList(){
-        List<Drink> archive = new ArrayList();
+        List<Drink> archive = new ArrayList<>();
         archive.addAll(gui.getController().getActualArchive());
         archive.sort(Drink.getCompByNameEmptyLast());
-        for(Drink drink:archive){
+        for(Drink drink: archive){
             createBox(drink);
         }
         inventoryFrame.revalidate();
@@ -96,37 +97,34 @@ class InventoryWindow {
         JTextField newAmountField = new JTextField(5);
         JTextField delta = new JTextField(5);
         delta.setHorizontalAlignment(JTextField.CENTER);
-        newAmountField.getDocument().addDocumentListener(new DocumentListener() {
+        newAmountField.addFocusListener(new FocusListener() {
             @Override
-            public void insertUpdate(DocumentEvent e) {
-                calculateDelta();
+            public void focusGained(FocusEvent e) {
+
             }
 
             @Override
-            public void removeUpdate(DocumentEvent e) {
-                calculateDelta();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                calculateDelta();
-            }
-            void calculateDelta(){
-                if(!newAmountField.getText().equals("")) {
-                    int diff = Integer.parseInt(newAmountField.getText()) - Integer.parseInt(amountField.getText());
-                    if (diff > 0) {
-                        delta.setText("+" + diff);
-                        nameField.setBackground(Color.GREEN);
-                    } else if (diff < 0) {
-                        delta.setText(String.valueOf(diff));
-                        nameField.setBackground(Color.RED);
+            public void focusLost(FocusEvent e) {
+                try {
+                    if (!newAmountField.getText().equals("")) {
+                        newAmountField.setBackground(Color.white);
+                        int diff = Integer.parseInt(newAmountField.getText()) - Integer.parseInt(amountField.getText());
+                        if (diff > 0) {
+                            delta.setText("+" + diff);
+                            nameField.setBackground(Color.GREEN);
+                        } else if (diff < 0) {
+                            delta.setText(String.valueOf(diff));
+                            nameField.setBackground(Color.RED);
+                        } else {
+                            delta.setText("0");
+                            nameField.setBackground(Color.YELLOW);
+                        }
                     } else {
-                        delta.setText("0");
-                        nameField.setBackground(Color.YELLOW);
+                        delta.setText("");
+                        nameField.setBackground(inventoryFrame.getBackground());
                     }
-                } else {
-                    delta.setText("");
-                    nameField.setBackground(inventoryFrame.getBackground());
+                } catch (NumberFormatException ex){
+                    newAmountField.setBackground(Color.RED);
                 }
             }
         });
@@ -141,13 +139,40 @@ class InventoryWindow {
         rowBox.add(delta);
         rowBox.add(Box.createRigidArea(new Dimension(3,0)));
         rowBox.setName(drink.getName());
-        listBox.add(rowBox);
-        boxList.add(rowBox);
+        mainBox.add(rowBox);
+        boxArray.add(rowBox);
     }
 
     private void parseValues(){
-        for(Box box:boxList){
-
+        if(checkValues()) {
+            JTextField delta;
+            for (Box box : boxArray) {
+                delta = (JTextField) box.getComponent(5);
+                int amount = Integer.parseInt(delta.getText());
+                if (amount != 0) {
+                    gui.getController().sellAmount(box.getName(), -amount);
+                }
+            }
+            close();
         }
+    }
+
+    private boolean checkValues() {
+        JTextField delta;
+        boolean correct = true;
+        for(Box box:boxArray){
+            delta = (JTextField) box.getComponent(5);
+            delta.setBackground(inventoryFrame.getBackground());
+            if(delta.getText().equals("")){
+                delta.setBackground(Color.red);
+                correct = false;
+                break;
+            }
+        }
+        return correct;
+    }
+
+    private void close(){
+        inventoryFrame.dispose();
     }
 }

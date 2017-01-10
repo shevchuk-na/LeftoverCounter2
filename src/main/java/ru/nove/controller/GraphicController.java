@@ -10,7 +10,9 @@ import java.util.List;
 public class GraphicController {
     private GUI gui;
     private DrinkListModel model;
+    @SuppressWarnings("FieldCanBeLocal")
     private final int OK = 1;
+    @SuppressWarnings("unused")
     private final int ERROR = -1;
 
     public GraphicController() {
@@ -54,11 +56,6 @@ public class GraphicController {
 
     public void cancelLast() {
         model.deleteLast();
-    }
-
-
-    public List<Drink> getArchive() {
-        return model.getArchive();
     }
 
     public int checkRegistry(String drink) {

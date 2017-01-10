@@ -9,13 +9,14 @@ import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 public class GUI {
     private static final int AMOUNT = 1;
     private static final int SALE_BUTTON = 3;
+    @SuppressWarnings("unused")
     private static final int CUSTOM_SALE_BUTTON = 5;
+    @SuppressWarnings("unused")
     private static final int ADD_AMOUNT = 7;
 
     private GraphicController controller;

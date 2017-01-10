@@ -59,14 +59,8 @@ public class Drink implements Serializable, Comparable<Drink>{
         return obsolete;
     }
 
-    public void setObsolete(boolean obsolete) {
-        this.obsolete = obsolete;
-    }
-
-    public void addAmount(int add){
-        this.amount += add;
-        amountHistory.add(amount);
-        tsHistory.add(DateUtil.now());
+    public void setObsolete() {
+        this.obsolete = true;
     }
 
     public void addSale(int sale){
@@ -93,6 +87,7 @@ public class Drink implements Serializable, Comparable<Drink>{
         return Comparator.comparing(Drink::getName);
     }
 
+    @SuppressWarnings("unused")
     public static Comparator<Drink> getCompByAmount(){
         return Comparator.comparing(Drink::getAmount);
     }

@@ -19,6 +19,7 @@ public class DrinkListModel {
     private HistoryHandler historyHandler;
     private GUI gui;
     private SaveLoadUtil saveLoad;
+    @SuppressWarnings("FieldCanBeLocal")
     private final int OK = 1;
     private final int ERROR = -1;
 
@@ -51,7 +52,7 @@ public class DrinkListModel {
             newDrink = new Drink(name, amount, defaultAmount);
             archiveHandler.addToArchive(newDrink);
         } else {
-            newDrink.addAmount(amount);
+            newDrink.addSale(-amount);
         }
         drinks.add(newDrink);
         salesThisSession.add(newDrink);
@@ -92,7 +93,7 @@ public class DrinkListModel {
 
     public void addAmount(String name, int amount){
         Drink drink = drinks.get(getDrinkIndex(name));
-        drink.addAmount(amount);
+        drink.addSale(-amount);
         salesThisSession.add(drink);
         gui.enableCancelButton(true);
         gui.showAddInfo(drink, amount);
@@ -195,12 +196,6 @@ public class DrinkListModel {
         gui.enableCancelButton(false);
     }
 
-    public List<Drink> getArchive() {
-        List<Drink> drinks = archiveHandler.getArchive();
-        drinks.sort(getCompByName());
-        return drinks;
-    }
-
     public List<Drink> getActualArchive() {
         List<Drink> drinks = archiveHandler.getActualArchive();
         drinks.sort(getCompByName());
@@ -224,7 +219,7 @@ public class DrinkListModel {
 
     public void makeItemObsolete(Drink drink) {
         if(drink.getAmount() == 0){
-            drink.setObsolete(true);
+            drink.setObsolete();
         }else{
             gui.showNotEmptyWarning();
         }
