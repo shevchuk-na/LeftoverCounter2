@@ -27,9 +27,9 @@ public class GUI {
     private JTabbedPane tabbedPane;
 
     private JFrame mainFrame;
-    private List<Box> boxArrayPlus, boxArrayMinus, boxArrayAll;
-    private JScrollPane scrollPanePlus, scrollPaneMinus, activePane;
+    private List<Box> boxArrayPlus, boxArrayMinus;
     private Box mainBoxPlus, mainBoxMinus;
+    private JScrollPane activePane;
     private JTextArea logArea;
     private JButton cancelButton;
     private JTextField searchField;
@@ -51,11 +51,11 @@ public class GUI {
         mainBoxMinus.setAlignmentY(1);
         mainPanelPlus.add(mainBoxPlus, BorderLayout.CENTER);
         mainPanelMinus.add(mainBoxMinus, BorderLayout.CENTER);
-        scrollPanePlus = new JScrollPane(mainPanelPlus, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+        JScrollPane scrollPanePlus = new JScrollPane(mainPanelPlus, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         Dimension scrollPaneDimension = new Dimension(600, 500);
         scrollPanePlus.setPreferredSize(scrollPaneDimension);
-        scrollPaneMinus = new JScrollPane(mainPanelMinus, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+        JScrollPane scrollPaneMinus = new JScrollPane(mainPanelMinus, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPaneMinus.setPreferredSize(scrollPaneDimension);
 
@@ -81,7 +81,6 @@ public class GUI {
         minusLabel.setPreferredSize(tabDimension);
         tabbedPane.setTabComponentAt(1, minusLabel);
         tabbedPane.addChangeListener(e -> activePane = (JScrollPane) tabbedPane.getSelectedComponent());
-
 
         JPanel topPanel = new JPanel();
         JButton addButton = new JButton("Добавить позицию");
@@ -226,16 +225,16 @@ public class GUI {
         mainBoxMinus.removeAll();
         switch(order){
             case alphabetical:
-                boxArrayPlus.sort(getSortBoxByName());
-                boxArrayMinus.sort(getSortBoxByName());
+                boxArrayPlus.sort(BoxComparators.getSortBoxByName());
+                boxArrayMinus.sort(BoxComparators.getSortBoxByName());
                 break;
             case available:
-                boxArrayPlus.sort(getSortByAmount());
-                boxArrayMinus.sort(getSortByAmount());
+                boxArrayPlus.sort(BoxComparators.getSortByAmount());
+                boxArrayMinus.sort(BoxComparators.getSortByAmount());
                 break;
             case defAmount:
-                boxArrayPlus.sort(getSortByDefaultAmount());
-                boxArrayMinus.sort(getSortByDefaultAmount());
+                boxArrayPlus.sort(BoxComparators.getSortByDefaultAmount());
+                boxArrayMinus.sort(BoxComparators.getSortByDefaultAmount());
                 break;
         }
         for(Box row:boxArrayPlus){
@@ -247,37 +246,11 @@ public class GUI {
         updateFrame();
     }
 
-    private Comparator<Box> getSortByAmount() {
-        return (d1, d2) -> {
-            JTextField field1 = (JTextField) d1.getComponent(AMOUNT);
-            JTextField field2 = (JTextField) d2.getComponent(AMOUNT);
-            int amount1 = Integer.parseInt(field1.getText());
-            int amount2 = Integer.parseInt(field2.getText());
-            return amount2 - amount1;
-        };
-    }
-
-    private Comparator<Box> getSortBoxByName() {
-        return Comparator.comparing(Component::getName);
-    }
-
-    private Comparator<Box> getSortByDefaultAmount() {
-        return (d1, d2) -> {
-            JButton one = (JButton) d1.getComponent(SALE_BUTTON);
-            JButton two = (JButton) d2.getComponent(SALE_BUTTON);
-            String[] defAmount1 = one.getText().split("Продать ");
-            int defaultAmount1 = Integer.parseInt(defAmount1[1]);
-            String[] defAmount2 = two.getText().split("Продать ");
-            int defaultAmount2 = Integer.parseInt(defAmount2[1]);
-            return defaultAmount1 - defaultAmount2;
-        };
-    }
-
     private void exit() {
         controller.exit();
     }
 
-    public void addPosition(Drink drink){
+    public void addPosition(Drink drink, boolean sort){
         Box rowBox = new Box(BoxLayout.X_AXIS);
         JTextField nameField = new JTextField(drink.getName(), 18);
         nameField.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(2,2,2,0),nameField.getBorder()));
@@ -289,36 +262,15 @@ public class GUI {
         JButton saleButton = new JButton("Продать " + drink.getDefaultAmount());
         saleButton.setPreferredSize(new Dimension(110, 30));
         saleButton.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(2,0,2,0),saleButton.getBorder()));
-        saleButton.addActionListener(e -> {
-            for(Box sourceBox:boxArrayAll){
-                if(e.getSource() == sourceBox.getComponent(SALE_BUTTON)){
-                    sellDefaultAmount(sourceBox.getName());
-                    break;
-                }
-            }
-        });
+        saleButton.addActionListener(e -> sellDefaultAmount(nameField.getText()));
         JButton customSaleButton = new JButton("Продать");
         customSaleButton.setPreferredSize(new Dimension(85, 30));
         customSaleButton.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(2,0,2,0), customSaleButton.getBorder()));
-        customSaleButton.addActionListener(e -> {
-            for(Box sourcebox:boxArrayAll){
-                if(e.getSource() == sourcebox.getComponent(CUSTOM_SALE_BUTTON)){
-                    createSellAddWindow(sourcebox.getName(), SellAddModes.customSale);
-                    break;
-                }
-            }
-        });
+        customSaleButton.addActionListener(e -> createSellAddWindow(nameField.getText(), SellAddModes.customSale));
         JButton addAmountButton = new JButton("Добавить");
         addAmountButton.setPreferredSize(new Dimension(90, 30));
         addAmountButton.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(2,0,2,0), addAmountButton.getBorder()));
-        addAmountButton.addActionListener(e -> {
-            for(Box sourcebox:boxArrayAll){
-                if(e.getSource() == sourcebox.getComponent(ADD_AMOUNT)){
-                    createSellAddWindow(sourcebox.getName(), SellAddModes.customAdd);
-                    break;
-                }
-            }
-        });
+        addAmountButton.addActionListener(e -> createSellAddWindow(nameField.getText(), SellAddModes.customAdd));
         nameField.setEditable(false);
         amountField.setEditable(false);
         rowBox.add(nameField);
@@ -337,8 +289,9 @@ public class GUI {
             boxArrayMinus.add(rowBox);
             mainBoxMinus.add(rowBox);
         }
-        boxArrayAll.add(rowBox);
-        sortPositions(SortViewModes.alphabetical);
+        if(sort) {
+            sortPositions(SortViewModes.alphabetical);
+        }
         showAddInfo(drink, drink.getAmount());
     }
 
@@ -357,13 +310,11 @@ public class GUI {
         mainBoxMinus.removeAll();
         boxArrayPlus = new ArrayList<>();
         boxArrayMinus = new ArrayList<>();
-        boxArrayAll = new ArrayList<>();
-        drinks.forEach(this::addPosition);
+        drinks.sort(Drink.getCompByName());
+        for(Drink drink:drinks){
+            addPosition(drink, false);
+        }
         updateFrame();
-    }
-
-    private Comparator<Drink> getSortDrinkByName() {
-        return Comparator.comparing(Drink::getName);
     }
 
     public void updatePosition(Drink drink) {
@@ -421,7 +372,7 @@ public class GUI {
             boxArrayPlus.remove(index);
             mainBoxPlus.remove(index);
         }
-        addPosition(drink);
+        addPosition(drink, true);
     }
 
     public void removePosition(Drink drink) {

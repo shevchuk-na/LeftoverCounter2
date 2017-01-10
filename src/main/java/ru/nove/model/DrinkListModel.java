@@ -56,7 +56,7 @@ public class DrinkListModel {
         drinks.add(newDrink);
         salesThisSession.add(newDrink);
         gui.enableCancelButton(true);
-        gui.addPosition(newDrink);
+        gui.addPosition(newDrink, true);
     }
 
     public void sellDrink(String name, int amount){
@@ -164,7 +164,7 @@ public class DrinkListModel {
                     if (lastAmount > amountBeforeLast) {                          //добавили
                         lastDrink.removeSale();
                         if (lastAmount == 0) {
-                            gui.addPosition(lastDrink);
+                            gui.addPosition(lastDrink, true);
                         } else if (amountBeforeLast < 0 && lastAmount > 0) {
                             gui.switchPosition(lastDrink);
                         } else {                                                //просто добавление
@@ -174,7 +174,7 @@ public class DrinkListModel {
                         lastDrink.removeSale();
                         if (lastAmount == 0) {                                    //убрали последнее
                             drinks.add(lastDrink);
-                            gui.addPosition(lastDrink);
+                            gui.addPosition(lastDrink, true);
                         } else if (amountBeforeLast > 0 && lastAmount < 0) {
                             gui.switchPosition(lastDrink);
                         } else {                                                //просто убрали

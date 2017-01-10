@@ -90,7 +90,18 @@ public class Drink implements Serializable, Comparable<Drink>{
     }
 
     public static Comparator<Drink> getCompByName(){
-        return (d1, d2) ->
-                d1.getName().compareTo(d2.getName());
+        return Comparator.comparing(Drink::getName);
+    }
+
+    public static Comparator<Drink> getCompByAmount(){
+        return Comparator.comparing(Drink::getAmount);
+    }
+
+    public static Comparator<Drink> getCompByNameEmptyLast(){
+        return (d1, d2) -> {
+            if(d1.getAmount() == 0) return 1;
+            else if(d2.getAmount() == 0) return -1;
+            else return d1.compareTo(d2);
+        };
     }
 }
